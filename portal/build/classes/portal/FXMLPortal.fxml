@@ -9,8 +9,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="572.0" prefWidth="695.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="portal.FXMLPortalController">
+<AnchorPane id="AnchorPane" prefHeight="572.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portal.FXMLPortalController">
    <children>
       <Button fx:id="btnJoin" layoutX="572.0" layoutY="132.0" mnemonicParsing="false" onMouseClicked="#joinGame" text="Join Game" />
       <Button fx:id="btnCreateGame" layoutX="572.0" layoutY="168.0" mnemonicParsing="false" onMouseClicked="#createGame" text="Create Game" />
@@ -19,7 +18,7 @@
       <Button fx:id="btnLogout" layoutX="627.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#logout" text="Logout" />
       <ScrollPane layoutX="193.0" layoutY="57.0" prefHeight="200.0" prefWidth="371.0">
          <content>
-            <ListView prefHeight="200.0" prefWidth="357.0" />
+            <ListView prefHeight="199.0" prefWidth="357.0" />
          </content>
       </ScrollPane>
       <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="57.0" pickOnBounds="true" preserveRatio="true">
@@ -43,5 +42,8 @@
          </font>
       </Label>
       <Label layoutX="193.0" layoutY="31.0" text="Gekozen game: " />
+      <TextArea fx:id="taMessages" layoutX="193.0" layoutY="271.0" prefHeight="215.0" prefWidth="371.0" />
+      <TextField fx:id="tbMessage" layoutX="193.0" layoutY="496.0" prefHeight="25.0" prefWidth="307.0" />
+      <Button fx:id="btnSend" layoutX="509.0" layoutY="496.0" mnemonicParsing="false" onAction="#sendMessage" text="Send" />
    </children>
 </AnchorPane>

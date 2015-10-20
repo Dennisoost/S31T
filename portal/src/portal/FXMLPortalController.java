@@ -5,10 +5,12 @@
  */
 package portal;
 
+import Chat.ChatMessage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -17,13 +19,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import Chat.ClientMessenger;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 
 /**
  * FXML Controller class
  *
  * @author Dennis
  */
-public class FXMLPortalController implements Initializable {
+public class FXMLPortalController implements Initializable, IChatClient {
 
     @FXML
     private Button btnJoin;
@@ -35,9 +40,16 @@ public class FXMLPortalController implements Initializable {
     private Button btnLogout;
     @FXML
     private Button btnLeaderboard;
+    @FXML
+    private Button btnSend;
 
     private ArrayList<GameRoom> gameroomList;
     private int grc;
+    private ClientMessenger cm;
+    @FXML
+    private TextArea taMessages;
+    @FXML
+    private TextField tbMessage;
 
     /**
      * Initializes the controller class.
@@ -47,7 +59,8 @@ public class FXMLPortalController implements Initializable {
         // TODO
         gameroomList = new ArrayList<>();
         grc = 0;
-
+        cm = new ClientMessenger("127.0.0.1", 1500, "Dennis", this);
+        cm.startServer();
     }
 
     @FXML
@@ -97,5 +110,21 @@ public class FXMLPortalController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void sendMessage(ActionEvent event) {
+        cm.sendMessage(new ChatMessage(ChatMessage.MESSAGE, tbMessage.getText()));
+        tbMessage.clear();
+    }
+
+    @Override
+    public void showMessage(String message) {
+        taMessages.appendText(message + "\n");
+    }
+
+    @Override
+    public void connectionFailed() {
+        taMessages.appendText("Connection failed! ");
     }
 }
