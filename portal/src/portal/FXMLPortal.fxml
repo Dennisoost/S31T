@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane id="AnchorPane" prefHeight="572.0" prefWidth="695.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="portal.FXMLPortalController">
+   <children>
+      <Button fx:id="btnJoin" layoutX="572.0" layoutY="132.0" mnemonicParsing="false" onMouseClicked="#joinGame" text="Join Game" />
+      <Button fx:id="btnCreateGame" layoutX="572.0" layoutY="168.0" mnemonicParsing="false" onMouseClicked="#createGame" text="Create Game" />
+      <Button fx:id="btnSpecGame" layoutX="572.0" layoutY="200.0" mnemonicParsing="false" onMouseClicked="#spectateGame" text="Spectate Game" />
+      <Button fx:id="btnLeaderboard" layoutX="572.0" layoutY="232.0" mnemonicParsing="false" onMouseClicked="#showLeaderboard" text="Leaderboard" />
+      <Button fx:id="btnLogout" layoutX="627.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#logout" text="Logout" />
+      <ScrollPane layoutX="193.0" layoutY="57.0" prefHeight="200.0" prefWidth="371.0">
+         <content>
+            <ListView prefHeight="200.0" prefWidth="357.0" />
+         </content>
+      </ScrollPane>
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="57.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="213.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="371.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
+         </image>
+      </ImageView>
+      <Label layoutX="58.0" layoutY="25.0" text="Games">
+         <font>
+            <Font name="Rockwell" size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="193.0" layoutY="31.0" text="Gekozen game: " />
+   </children>
+</AnchorPane>
