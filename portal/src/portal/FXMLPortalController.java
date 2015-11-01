@@ -20,8 +20,14 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import Chat.ClientMessenger;
+import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 
 /**
  * FXML Controller class
@@ -50,6 +56,16 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private TextArea taMessages;
     @FXML
     private TextField tbMessage;
+    @FXML
+    private ImageView imgGame1;
+    @FXML
+    private ImageView imgGame2;
+    @FXML
+    private ImageView imgGame3;
+    @FXML
+    private Label lblGame;
+    @FXML
+    private ListView<String> taGames;
 
     /**
      * Initializes the controller class.
@@ -59,7 +75,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
         // TODO
         gameroomList = new ArrayList<>();
         grc = 0;
-        cm = new ClientMessenger("127.0.0.1", 1500, "Dennis", this);
+        btnSend.setDefaultButton(true);
+        cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
         cm.startServer();
     }
 
@@ -68,9 +85,16 @@ public class FXMLPortalController implements Initializable, IChatClient {
     }
 
     @FXML
-    private void createGame(MouseEvent event) {
-        GameRoom gr = new GameRoom("Gameroom" + Integer.toString(grc++));
+    private void createGame(MouseEvent event) throws IOException, InterruptedException {
+        grc = grc + 1;
+        GameRoom gr = new GameRoom("Gameroom" + Integer.toString(grc));
         gameroomList.add(gr);
+        updateGameList();
+
+        /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
+        
+         p.waitFor();
+         int exitVal = p.exitValue();*/
     }
 
     @FXML
@@ -88,6 +112,9 @@ public class FXMLPortalController implements Initializable, IChatClient {
 
     @FXML
     private void logout(MouseEvent event) {
+        //Disconnect from sockets
+        cm.logoutFromCM();
+
         /**
          * Return to login screen
          */
@@ -126,5 +153,28 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @Override
     public void connectionFailed() {
         taMessages.appendText("Connection failed! ");
+    }
+
+    @FXML
+    private void selectGame1(MouseEvent event) {
+        lblGame.setText("Bomberman1");
+    }
+
+    @FXML
+    private void selectGame2(MouseEvent event) {
+        lblGame.setText("Bomberman2");
+    }
+
+    @FXML
+    private void selectGame3(MouseEvent event) {
+        lblGame.setText("Bomberman3");
+    }
+
+    private void updateGameList() {
+        List<String> gamenameList = new ArrayList<>();
+        for (GameRoom gr : gameroomList) {
+            gamenameList.add(gr.getGame());
+        }
+        taGames.setItems(FXCollections.observableArrayList(gamenameList));
     }
 }

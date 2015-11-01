@@ -6,14 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane fx:id="pnLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="263.0" prefWidth="251.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portal.FXMLDocumentController">
+<Pane fx:id="pnLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="263.0" prefWidth="245.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portal.FXMLDocumentController">
    <children>
-      <Button id="tbSignin" fx:id="btnSignin" layoutX="113.0" layoutY="196.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionSignIn" text="Sign in" />
-      <TextField id="tbUsername" fx:id="tbUsername" layoutX="87.0" layoutY="111.0" />
-      <TextField id="tbPassword" fx:id="tbPassword" layoutX="87.0" layoutY="149.0" />
-      <Label id="lblUsername" fx:id="lblUsername" layoutX="16.0" layoutY="115.0" text="Username" />
-      <Label id="lblPassword" fx:id="lblPassword" layoutX="18.0" layoutY="153.0" text="Password" />
-      <Button id="btnRegister" fx:id="btnRegister" layoutX="176.0" layoutY="196.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionRegister" text="Register" />
-      <Label id="lblPortal" fx:id="lblPortal" layoutX="108.0" layoutY="42.0" text="Portal" />
+      <Button id="tbSignin" fx:id="btnSignin" layoutX="73.0" layoutY="164.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionSignIn" text="Sign in" />
+      <TextField id="tbUsername" fx:id="tbUsername" layoutX="49.0" layoutY="83.0" promptText="Username" />
+      <Button id="btnRegister" fx:id="btnRegister" layoutX="138.0" layoutY="164.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionRegister" text="Register" />
+      <Label id="lblPortal" fx:id="lblPortal" layoutX="90.0" layoutY="44.0" text="Game Portal" />
+      <PasswordField fx:id="tbPassword" layoutX="49.0" layoutY="119.0" promptText="Password" />
    </children>
 </Pane>

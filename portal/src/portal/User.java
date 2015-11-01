@@ -10,5 +10,5 @@ package portal;
  * @author Dennis
  */
 public class User {
-    
+    public static String username;
 }

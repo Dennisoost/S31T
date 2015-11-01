@@ -21,4 +21,8 @@ public class GameRoom {
         this.game = game;
         playercount++;
     }
+    public String getGame()
+    {
+        return this.game;
+    }
 }

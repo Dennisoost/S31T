@@ -79,7 +79,7 @@ public class ClientMessenger {
         if (gui == null) {
             System.out.println(msg);      // println in console mode
         } else {
-            gui.showMessage(msg + "\n");		// append to the ClientGUI JTextArea (or whatever)
+            gui.showMessage(msg);		// append to the ClientGUI JTextArea (or whatever)
         }
     }
 
@@ -182,6 +182,9 @@ public class ClientMessenger {
         if (gui != null) {
             gui.connectionFailed();
         }
-
+    }
+    public void logoutFromCM()
+    {
+        sendMessage(new ChatMessage(ChatMessage.LOGOUT, ""));
     }
 }

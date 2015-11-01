@@ -16,24 +16,19 @@
       <Button fx:id="btnSpecGame" layoutX="572.0" layoutY="200.0" mnemonicParsing="false" onMouseClicked="#spectateGame" text="Spectate Game" />
       <Button fx:id="btnLeaderboard" layoutX="572.0" layoutY="232.0" mnemonicParsing="false" onMouseClicked="#showLeaderboard" text="Leaderboard" />
       <Button fx:id="btnLogout" layoutX="627.0" layoutY="14.0" mnemonicParsing="false" onMouseClicked="#logout" text="Logout" />
-      <ScrollPane layoutX="193.0" layoutY="57.0" prefHeight="200.0" prefWidth="371.0">
-         <content>
-            <ListView prefHeight="199.0" prefWidth="357.0" />
-         </content>
-      </ScrollPane>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="57.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="imgGame1" fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="57.0" onMouseClicked="#selectGame1" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
+            <Image url="@../../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
          </image>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="213.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="imgGame2" fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="213.0" onMouseClicked="#selectGame2" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
+            <Image url="@../../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
          </image>
       </ImageView>
-      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="371.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="imgGame3" fitHeight="150.0" fitWidth="200.0" layoutX="22.0" layoutY="371.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
+            <Image url="@../../../../../../Downloads/bomberman_by_nooa-d39twdr.jpg" />
          </image>
       </ImageView>
       <Label layoutX="58.0" layoutY="25.0" text="Games">
@@ -43,7 +38,9 @@
       </Label>
       <Label layoutX="193.0" layoutY="31.0" text="Gekozen game: " />
       <TextArea fx:id="taMessages" layoutX="193.0" layoutY="271.0" prefHeight="215.0" prefWidth="371.0" />
-      <TextField fx:id="tbMessage" layoutX="193.0" layoutY="496.0" prefHeight="25.0" prefWidth="307.0" />
-      <Button fx:id="btnSend" layoutX="509.0" layoutY="496.0" mnemonicParsing="false" onAction="#sendMessage" text="Send" />
+      <TextField fx:id="tbMessage" layoutX="193.0" layoutY="496.0" prefHeight="25.0" prefWidth="317.0" />
+      <Button fx:id="btnSend" layoutX="521.0" layoutY="496.0" mnemonicParsing="false" onAction="#sendMessage" text="Send" />
+      <ListView fx:id="taGames" layoutX="193.0" layoutY="57.0" prefHeight="200.0" prefWidth="371.0" />
+      <Label fx:id="lblGame" layoutX="278.0" layoutY="31.0" text="Bomberman 1" />
    </children>
 </AnchorPane>

@@ -7,6 +7,8 @@ package portal;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,6 +18,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -48,18 +52,33 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Button btnRegister;
 
+    private DatabaseConnection dbconn;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        dbconn = new DatabaseConnection();
     }
 
     @FXML
-    private void handleButtonActionSignIn(MouseEvent event) {
+    private void handleButtonActionSignIn(MouseEvent event) throws SQLException, ClassNotFoundException {
         System.out.println(tbUsername.getText() + " " + tbPassword.getText());
         //hide this current window
-        Stage thisStage = (Stage) btnRegister.getScene().getWindow();
-        thisStage.close();
-        showStage("FXMLPortal.fxml");
+
+        if (dbconn.checkLogin(tbUsername.getText(), tbPassword.getText())) {
+            User.username = tbUsername.getText();
+            Stage thisStage = (Stage) btnRegister.getScene().getWindow();
+            thisStage.close();
+            showStage("FXMLPortal.fxml");
+        } else {
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Information Alert");
+            String s = "Wrong username password combination";
+            alert.setContentText(s);
+            alert.show();
+        }
+
     }
 
     @FXML
