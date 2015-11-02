@@ -27,10 +27,10 @@ public class Player implements Comparator<Player>
         
         public String name = "";
         public int score = 0;
-        public int powerUpSpeedCount,powerUpBombCount,powerUpKickCount,powerUpRangeCount; 
+        public int powerUpSpeedCount = 0,powerUpBombCount = 0,powerUpKickCount = 0,powerUpRangeCount = 0; 
         public boolean hasFlag = false;
         public boolean hasBeenKilled = false;
-        
+        public boolean powerUpCanKick = false;
         public int maxBombCount = 2;
         public ArrayList<Potion> placedBombs;
         public boolean isPlacingBomb = false;
@@ -195,11 +195,5 @@ public class Player implements Comparator<Player>
                             //ER ZIJN AL ZAT BOMMEN, DOE NIKS.
                         }
 
-    }
-     
-     
-        
-        
-        
-        
+    }     
 }

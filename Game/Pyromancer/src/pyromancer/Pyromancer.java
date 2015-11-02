@@ -9,6 +9,7 @@ import GameAssets.GameMap;
 import GameAssets.Player;
 import IngameAssets.Box;
 import IngameAssets.Potion;
+import IngameAssets.PowerUp;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class Pyromancer extends BasicGame {
     private ArrayList<Integer> numberHeights; 
 
     //OTHER
+    private ArrayList<PowerUp> powerUps;
     private int x, y, time, flagTime, lastflagTime, gameDuration, gameDurationSeconds,bombTime;
     private String flagCounter = "";
     public String timeDuration;
@@ -159,6 +161,17 @@ public class Pyromancer extends BasicGame {
                     
             }
 
+        }
+            
+        if(powerUps.size() > 0)
+        {
+            for(PowerUp pw : powerUps)
+            {
+                if(!pw.isPickedUp)
+                {
+                    g.drawImage(pw.itemImage, pw.location.getX(), pw.location.getY());
+                }
+            }
         }
     }
      
@@ -355,16 +368,36 @@ public class Pyromancer extends BasicGame {
         players = new ArrayList<>();
         numberHeights = new ArrayList<>();
         
-             flag = new Image("Images/flag.png");
-            powerUpExtra = new Image("Images/powerups/extra.png");
-            powerUpKick = new Image("Images/powerups/kick.png");
-            powerUpRange = new Image("Images/powerups/range.png");
-            powerUpSpeed = new Image("Images/powerups/speed.png");
-            bombImage = new Image("Images/PokePotion.png");
-          explosionSound = new Sound("Sounds/explosion2.wav");
+        flag = new Image("Images/flag.png");
+        powerUpExtra = new Image("Images/powerups/extra.png");
+        powerUpKick = new Image("Images/powerups/kick.png");
+        powerUpRange = new Image("Images/powerups/range.png");
+        powerUpSpeed = new Image("Images/powerups/speed.png");
+        bombImage = new Image("Images/PokePotion.png");
+        explosionSound = new Sound("Sounds/explosion2.wav");
+        
+        powerUps = new ArrayList<>();
+        
+        PowerUp pwSpeed = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
+        PowerUp pwSpeed2 = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
+        PowerUp pwSpeed3 = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
+        
+        PowerUp pwBomb = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
+        PowerUp pwBomb2 = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
+        PowerUp pwBomb3 = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
+        
+        PowerUp pwKick = new PowerUp(PowerUp.PowerUpType.Kick, powerUpKick);
+        PowerUp pwKick2 = new PowerUp(PowerUp.PowerUpType.Kick, powerUpKick);
+        PowerUp pwKick3 = new PowerUp(PowerUp.PowerUpType.Kick, powerUpKick);
+        
+        PowerUp pwRange = new PowerUp(PowerUp.PowerUpType.Range, powerUpRange);
+        PowerUp pwRange2 = new PowerUp(PowerUp.PowerUpType.Range, powerUpRange);
+        PowerUp pwRange3 = new PowerUp(PowerUp.PowerUpType.Range, powerUpRange);
+        
+        PowerUp pwFlag = new PowerUp(PowerUp.PowerUpType.Flag, flag);
+        
         
         player1 = new Player(37, 37, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
-       
         player2 = new Player();
         player3 = new Player();
         player4 = new Player();
@@ -436,15 +469,12 @@ public class Pyromancer extends BasicGame {
     {
         completeTask();
     }
-  
-    
         private void completeTask() {
             
                 
                       shouldBoom = false;
                        p.getExplodeAnimation().stop();
                         player1.placedBombs.remove(p);
-
     }
 
 }
