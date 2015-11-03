@@ -53,9 +53,5 @@ public class Flag
 
     public Image getFlagImage() {
         return flagImage;
-    }
-    
-
-    
-    
+    } 
 }

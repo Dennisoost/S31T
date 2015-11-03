@@ -7,6 +7,7 @@ package GameAssets;
 
 import IngameAssets.Box;
 import IngameAssets.Flag;
+import IngameAssets.PowerUp;
 import java.util.ArrayList;
 import java.util.Random;
 import org.lwjgl.util.Point;
@@ -26,20 +27,23 @@ public class GameMap {
     public ArrayList<Point> emptySpots;
     private Image boxImage, flagImage;
     private Flag flag;
+    private Box b;
     public  Point[] forbiddenPoints;
+    public ArrayList<PowerUp> powerUps;
     
     public GameMap() throws SlickException
     {
       tiledMap = new TiledMap("/MAP/testmap.tmx");
     }
-         public GameMap(Image boxIMG, Image flagIMG) throws SlickException {
+         public GameMap(Image boxIMG, Image flagIMG, ArrayList generatedPowerUps) throws SlickException {
         tiledMap = new TiledMap("/MAP/testmap.tmx");
         this.boxImage = boxIMG;
         this.flagImage = flagIMG;
         generatedBoxes = new ArrayList<>();
         boxLocations = new ArrayList<>();
         flagBoxes = new ArrayList<>();
-       GenerateBoxes();
+        powerUps = generatedPowerUps;
+        GenerateBoxes();
     }
 
     public void GenerateBoxes() {
@@ -58,7 +62,9 @@ public class GameMap {
                     Point p = new Point(column, row);
                     if(!checkLocation(p))
                     {
-                                            generatedBoxes.add(new Box(32, 32, p, boxImage));
+                       System.out.println("p: " + p);
+                       b = new Box(32, 32, p, boxImage);
+                       generatedBoxes.add(b);
                     }
                   
                 }
@@ -69,24 +75,40 @@ public class GameMap {
 
     }
     
-      public void setSpawnBoxes() {
+    public void setSpawnBoxes() {
         Random rndm = new Random();
         spawnBoxes = new ArrayList<>();
         ArrayList<Box> notSpawned = generatedBoxes;
-      
 
-         for(int i = 0; i < 150; i++)
+         for(int i = 0; i < 20; i++)
          {
-                      int index = rndm.nextInt(generatedBoxes.size());
-                     Box randomBox = generatedBoxes.get(index);
-                     spawnBoxes.add(randomBox);
-                     notSpawned.remove(randomBox);
+            int index = rndm.nextInt(generatedBoxes.size());
+            Box randomBox = generatedBoxes.get(index);
+            spawnBoxes.add(randomBox);
+            notSpawned.remove(randomBox);
          }
-
- 
-
+         addPowerUps();
     }
 
+    public void addPowerUps()
+    {
+        Random rndm = new Random();
+        int a = 0;
+        
+        while(a < powerUps.size())
+        {
+            int index = rndm.nextInt(spawnBoxes.size());
+            Box randomBox = spawnBoxes.get(index);
+            if(!randomBox.isHasPowerUp())
+            {
+                powerUps.get(a).location = randomBox.xyPoint;
+                randomBox.setHiddenPowerUp(powerUps.get(a));
+                randomBox.setHasPowerUp(true);
+                a++;
+            }
+        }
+    }
+    
     private void createAndSetFlag() {
         Random rndm = new Random();
         int index = rndm.nextInt(flagBoxes.size());
@@ -120,7 +142,7 @@ public class GameMap {
             new Point(3,13),
             new Point(1,11),
             new Point(1,12),
-             new Point(18,11),
+            new Point(18,11),
             new Point(18,12),
             new Point(16,13),
             new Point(17,13),
@@ -216,10 +238,18 @@ public class GameMap {
             if(p.equals(b.xyPoint))
             {
                 toRemove = b;
+                if(b.isHasPowerUp())
+                {
+                    toRemove.hiddenPowerUp.isPickedUp = false;
+                }
             }
         }
         
         spawnBoxes.remove(toRemove);
+        if(toRemove.hiddenPowerUp != null)
+        {
+            toRemove.hiddenPowerUp.isDropped = true;
+        }
         //ptoScore.score += 20;
         System.out.println("BOX DESTROOOOOYED");
         
