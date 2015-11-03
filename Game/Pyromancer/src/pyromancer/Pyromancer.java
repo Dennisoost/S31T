@@ -13,10 +13,12 @@ import IngameAssets.PowerUp;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.collections.FXCollections;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.AppGameContainer;
@@ -167,9 +169,10 @@ public class Pyromancer extends BasicGame {
         {
             for(PowerUp pw : powerUps)
             {
-                if(!pw.isPickedUp)
+                if(!pw.isPickedUp && pw.isDropped)
                 {
-                    g.drawImage(pw.itemImage, pw.location.getX(), pw.location.getY());
+                    System.out.println("image: " + pw.itemImage.toString());
+                    g.drawImage(pw.itemImage, ((pw.location.getX() * 32) + 5), ((pw.location.getY() * 32) + 5));
                 }
             }
         }
@@ -178,8 +181,7 @@ public class Pyromancer extends BasicGame {
 
        if(shouldBoom)
        {
-        
-                 shouldBoom = false;
+         shouldBoom = false;
        }
         
         g.drawAnimation(player1.getCurrentSprite(), (player1.x * 32) + 5, (player1.y * 32) + 5);
@@ -358,15 +360,6 @@ public class Pyromancer extends BasicGame {
             gc.setShowFPS(false);
             gc.setVSync(true);
         }
-        testAnim =  setAnimations();
-        gameDurationSeconds = 600;
-        gameDuration = 1000 * gameDurationSeconds;
-        lastflagTime = 0;
-
-        gameMap = new GameMap(new Image("Images/box.png"), new Image("Images/gameflag.png"));
-        tiledMap = gameMap.getTiledMap();
-        players = new ArrayList<>();
-        numberHeights = new ArrayList<>();
         
         flag = new Image("Images/flag.png");
         powerUpExtra = new Image("Images/powerups/extra.png");
@@ -396,6 +389,20 @@ public class Pyromancer extends BasicGame {
         
         PowerUp pwFlag = new PowerUp(PowerUp.PowerUpType.Flag, flag);
         
+        PowerUp[] allPowerUps = new PowerUp[]{
+        pwSpeed, pwSpeed2, pwSpeed3, pwBomb, pwBomb2, pwBomb3, pwKick, pwKick2, pwKick3, pwRange, pwRange2, pwRange3, pwFlag};
+        
+        powerUps.addAll(Arrays.asList(allPowerUps));
+                
+        testAnim =  setAnimations();
+        gameDurationSeconds = 600;
+        gameDuration = 1000 * gameDurationSeconds;
+        lastflagTime = 0;
+
+        gameMap = new GameMap(new Image("Images/box.png"), new Image("Images/gameflag.png"), powerUps);
+        tiledMap = gameMap.getTiledMap();
+        players = new ArrayList<>();
+        numberHeights = new ArrayList<>();
         
         player1 = new Player(37, 37, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
         player2 = new Player();
@@ -408,9 +415,7 @@ public class Pyromancer extends BasicGame {
 
         player1.x = x;
         player1.y = y;
-        
-
-                    
+                
         player1.name = "Queenie";
         player2.name = "Sjoerd";
         player3.name = "Dennis";

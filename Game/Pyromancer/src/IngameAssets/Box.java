@@ -22,7 +22,7 @@ public class Box
        private boolean hasPowerUp = false;
        private boolean containsFlag = false; 
 
-       private PowerUp hiddenPowerUp;
+       public PowerUp hiddenPowerUp;
        private Rectangle bounds;
        private int boxID;
 

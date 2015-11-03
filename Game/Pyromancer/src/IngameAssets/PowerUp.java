@@ -29,20 +29,14 @@ public class PowerUp {
     public Image itemImage;
     public boolean isPickedUp; 
     public Player player;
-    
-    public PowerUp(PowerUpType type, Point location, Image itemImage)
-    {
-        this.type = type;
-        this.location = location;
-        this.itemImage = itemImage;
-        this.isPickedUp = false;
-    }
+    public boolean isDropped;
     
     public PowerUp(PowerUpType type, Image itemImage)
     {
         this.type = type;
         this.itemImage = itemImage;
         this.isPickedUp = false;
+        this.isDropped = false;
     }
 
     public PowerUpType getType() {
