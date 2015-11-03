@@ -25,8 +25,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
@@ -52,6 +55,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private ArrayList<GameRoom> gameroomList;
     private int grc;
     private ClientMessenger cm;
+    private ArrayList<GameRoom> gameroomList2;
+
     @FXML
     private TextArea taMessages;
     @FXML
@@ -66,6 +71,16 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private Label lblGame;
     @FXML
     private ListView<String> taGames;
+    @FXML
+    private ImageView imgGame31;
+    @FXML
+    private ImageView imgGame311;
+    @FXML
+    private TableView<GameRoom> tableViewGame;
+    @FXML
+    private TableColumn<GameRoom, String> tcGameroom;
+    @FXML
+    private TableColumn<GameRoom, String> tcPlayer;
 
     /**
      * Initializes the controller class.
@@ -74,10 +89,14 @@ public class FXMLPortalController implements Initializable, IChatClient {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         gameroomList = new ArrayList<>();
+        gameroomList2 = new ArrayList<>();
         grc = 0;
         btnSend.setDefaultButton(true);
         cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
         cm.startServer();
+        
+        //tcGameroom.setCellValueFactory(new PropertyValueFactory("game"));
+        //tcPlayer.setCellValueFactory(new PropertyValueFactory("playercount"));
     }
 
     @FXML
@@ -158,11 +177,13 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @FXML
     private void selectGame1(MouseEvent event) {
         lblGame.setText("Bomberman1");
+        event.getSource().toString();
     }
 
     @FXML
     private void selectGame2(MouseEvent event) {
         lblGame.setText("Bomberman2");
+
     }
 
     @FXML
@@ -171,6 +192,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
     }
 
     private void updateGameList() {
+
+
         List<String> gamenameList = new ArrayList<>();
         for (GameRoom gr : gameroomList) {
             gamenameList.add(gr.getGame());

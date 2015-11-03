@@ -25,7 +25,7 @@ public class DatabaseConnection {
 
     //  Database credentials
     static final String USER = "WaliPTS3";
-    static final String PASS = "bomberman2";
+    static final String PASS = "dennis11";
 
     public DatabaseConnection() {
         int loginvalue = 0;

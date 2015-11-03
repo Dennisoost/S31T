@@ -33,7 +33,7 @@ import javafx.stage.WindowEvent;
  * @author Dennis
  */
 public class FXMLDocumentController implements Initializable {
-
+    
     private Label label;
     @FXML
     private Button btnSignin;
@@ -51,18 +51,46 @@ public class FXMLDocumentController implements Initializable {
     private Label lblPassword;
     @FXML
     private Button btnRegister;
-
+    
     private DatabaseConnection dbconn;
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         dbconn = new DatabaseConnection();
+        btnSignin.setDefaultButton(true);
     }
-
+    
     @FXML
     private void handleButtonActionSignIn(MouseEvent event) throws SQLException, ClassNotFoundException {
-        System.out.println(tbUsername.getText() + " " + tbPassword.getText());
+        login();   
+    }
+    
+    @FXML
+    private void handleButtonActionRegister(MouseEvent event) {
+        System.out.println("You clicked me!2");
+        //hide this current window
+        Stage thisStage = (Stage) btnRegister.getScene().getWindow();
+        thisStage.close();
+        showStage("FXMLRegister.fxml");
+    }
+    
+    public void showStage(String fxmlfile) {
+        Parent root;
+        try {
+            root = FXMLLoader.load(getClass().getResource(fxmlfile));
+            Stage stage = new Stage();
+            Scene sc = new Scene(root);
+            stage.setScene(sc);
+            stage.show();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void login() throws SQLException, ClassNotFoundException
+    {
+         System.out.println(tbUsername.getText() + " " + tbPassword.getText());
         //hide this current window
 
         if (dbconn.checkLogin(tbUsername.getText(), tbPassword.getText())) {
@@ -77,30 +105,6 @@ public class FXMLDocumentController implements Initializable {
             String s = "Wrong username password combination";
             alert.setContentText(s);
             alert.show();
-        }
-
-    }
-
-    @FXML
-    private void handleButtonActionRegister(MouseEvent event) {
-        System.out.println("You clicked me!2");
-        //hide this current window
-        Stage thisStage = (Stage) btnRegister.getScene().getWindow();
-        thisStage.close();
-        showStage("FXMLRegister.fxml");
-    }
-
-    public void showStage(String fxmlfile) {
-        Parent root;
-        try {
-            root = FXMLLoader.load(getClass().getResource(fxmlfile));
-            Stage stage = new Stage();
-            Scene sc = new Scene(root);
-            stage.setScene(sc);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

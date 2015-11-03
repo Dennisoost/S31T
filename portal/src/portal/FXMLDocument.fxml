@@ -7,11 +7,11 @@
 <?import javafx.scene.layout.*?>
 
 <Pane fx:id="pnLogin" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="263.0" prefWidth="245.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portal.FXMLDocumentController">
-   <children>
-      <Button id="tbSignin" fx:id="btnSignin" layoutX="73.0" layoutY="164.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionSignIn" text="Sign in" />
-      <TextField id="tbUsername" fx:id="tbUsername" layoutX="49.0" layoutY="83.0" promptText="Username" />
-      <Button id="btnRegister" fx:id="btnRegister" layoutX="138.0" layoutY="164.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionRegister" text="Register" />
-      <Label id="lblPortal" fx:id="lblPortal" layoutX="90.0" layoutY="44.0" text="Game Portal" />
-      <PasswordField fx:id="tbPassword" layoutX="49.0" layoutY="119.0" promptText="Password" />
-   </children>
+    <children>
+        <TextField id="tbUsername" fx:id="tbUsername" layoutX="49.0" layoutY="83.0" promptText="Username" />
+        <PasswordField fx:id="tbPassword" layoutX="49.0" onAction="#login"  layoutY="119.0" promptText="Password" />
+        <Button id="tbSignin" fx:id="btnSignin" layoutX="73.0" layoutY="164.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionSignIn" text="Sign in" />
+        <Button id="btnRegister" fx:id="btnRegister" layoutX="138.0" layoutY="164.0" mnemonicParsing="false" onMouseClicked="#handleButtonActionRegister" text="Register" />
+        <Label id="lblPortal" fx:id="lblPortal" layoutX="90.0" layoutY="44.0" text="Game Portal" />
+    </children>
 </Pane>
