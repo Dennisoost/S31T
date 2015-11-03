@@ -62,7 +62,6 @@ public class GameMap {
                     Point p = new Point(column, row);
                     if(!checkLocation(p))
                     {
-                       System.out.println("p: " + p);
                        b = new Box(32, 32, p, boxImage);
                        generatedBoxes.add(b);
                     }

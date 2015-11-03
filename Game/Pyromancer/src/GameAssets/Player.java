@@ -8,11 +8,11 @@ package GameAssets;
 import IngameAssets.Potion;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.ListIterator;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.SpriteSheet;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.tiled.TiledMap;
 
 /**
@@ -33,6 +33,8 @@ public class Player implements Comparator<Player>
         public boolean powerUpCanKick = false;
         public int maxBombCount = 2;
         public ArrayList<Potion> placedBombs;
+        public ListIterator<Potion> bombIterator;
+        
         public boolean isPlacingBomb = false;
         
         private Animation currentSprite, up, down, left, right;
@@ -46,11 +48,13 @@ public class Player implements Comparator<Player>
      public Player(){}
      public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) {
         
+      
         this.x = posX;
         this.y = posY;
         this.width = width;
         this.height = height;
         placedBombs = new ArrayList<Potion>();
+        bombIterator = placedBombs.listIterator();
         //this.boundingBox = new Rectangle(this.posX, this.posY, this.width, this.height);
         this.sprites = ss;
         this.bAnim = bombAnim;
@@ -179,13 +183,16 @@ public class Player implements Comparator<Player>
      
     public void placeBomb()
     {
-   
+
            if(placedBombs.size() < (maxBombCount + powerUpBombCount))
                         {
+                            
                             //MEN IS NIET EEN BOM AANT PLATSEN, JE MAG HEM NOG PLAATSEN?
                             Potion bomb = new Potion(this.x, this.y, gMap, bAnim, bImg,bSound, this);
-                            placedBombs.add(bomb);
                             bomb.hasExploded = false;
+                            bombIterator.add(bomb);
+                           System.out.println("Sizeu" + placedBombs.size());
+
                             Thread thr = new Thread(bomb);
                             thr.start();
                        
