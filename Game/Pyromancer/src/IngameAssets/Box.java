@@ -34,14 +34,13 @@ public class Box
     public Box(float width, float height, Point p, Image image) {
         this.width = width;
         this.height = height;
-        this.location = location;
         this.image = image;
         this.xyPoint = p;
         this.bounds = new Rectangle(this.xyPoint.getX(), this.xyPoint.getY(), this.width, this.height);
     }
     
     
-       public float getWidth() {
+    public float getWidth() {
         return width;
     }
 
@@ -76,7 +75,6 @@ public class Box
     public boolean isHasPowerUp() {
         return hasPowerUp;
     }
-
     
     public void setHasPowerUp(boolean hasPowerUp) {
         this.hasPowerUp = hasPowerUp;
@@ -90,11 +88,11 @@ public class Box
         this.hiddenPowerUp = hiddenPowerUp;
     }
        
-       public Rectangle getBounds() {
+    public Rectangle getBounds() {
         return bounds;
     }
        
-          public int getBoxID() {
+    public int getBoxID() {
         return boxID;
     }
 
@@ -108,9 +106,5 @@ public class Box
 
     public void setContainsFlag(boolean containsFlag) {
         this.containsFlag = containsFlag;
-    }
-    
-
-    
-       
+    }  
 }
