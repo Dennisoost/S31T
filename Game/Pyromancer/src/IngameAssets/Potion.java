@@ -49,12 +49,12 @@ public class Potion implements Runnable {
         //   this.explosionSound = explosionSound;
         this.location = new Point(x, y);
         ranges = new ArrayList<>();
-       this.gameMap = gMap;
-       this.tiledMap = gameMap.getTiledMap();
-       this.explodeAnimation = bombAnim;
-       this.bombImage = bombImage;
-       this.explosionSound = explosionSound;
-       this.usedBy = usedByPlayer;
+        this.gameMap = gMap;
+        this.tiledMap = gameMap.getTiledMap();
+        this.explodeAnimation = bombAnim;
+        this.bombImage = bombImage;
+        this.explosionSound = explosionSound;
+        this.usedBy = usedByPlayer;
     }
 
     @Override
@@ -70,36 +70,34 @@ public class Potion implements Runnable {
             } catch (SlickException ex) {
                 Logger.getLogger(Potion.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         } catch (InterruptedException ex) {
             Logger.getLogger(Potion.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
    public void explodeBomb() throws SlickException {
         int wallLayer = tiledMap.getLayerIndex("Walls");
         
-            range += usedBy.powerUpRangeCount;
-                 for (int i = 0; i < this.range; i++) {
+        range += usedBy.powerUpRangeCount;
+        
+        for (int i = 0; i < this.range; i++) {
             if (!upDone) {
-                Point positionPos = new Point(this.location.getX(), this.getLocation().getY() - i);
-                             
+                Point positionPos = new Point(this.location.getX(), this.getLocation().getY() - i);           
                 if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
                 {
-                        if (!gameMap.isBoxThere(new Point(this.location.getX(), this.getLocation().getY() - i)))
-                            {
-
-                                upRange = i + 1;
-                                //EXPLOSIE KAN NAAR UP.
-                            } 
-                        else 
-                            {
-                                upRange =  i + 1;
-                                upDone = true;
-                                 gameMap.removeBoxAfterExplosion(positionPos, usedBy);                                //KAN MAAR TOT DE BOX.
-                            }
-                } else {
+                    if (!gameMap.isBoxThere(new Point(this.location.getX(), this.getLocation().getY() - i)))
+                        {
+                            upRange = i + 1;
+                            //EXPLOSIE KAN NAAR UP.
+                        } 
+                    else 
+                        {
+                            upRange =  i + 1;
+                            upDone = true;
+                            gameMap.removeBoxAfterExplosion(positionPos, usedBy);                                //KAN MAAR TOT DE BOX.
+                        }
+                } 
+                else {
                     upRange = i;
                     System.out.println("up wall");
                     //IS WALL
@@ -107,14 +105,11 @@ public class Potion implements Runnable {
                 }
             }
                 
-    
-
             if (!rightDone) {
                  Point positionPos = new Point(this.location.getX() + i, this.getLocation().getY());
 
                 if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) {
                     if (!gameMap.isBoxThere(positionPos)) {
-
                         rightRange = i + 1;
                         if(rightRange == range)
                         {
@@ -125,7 +120,7 @@ public class Potion implements Runnable {
                         // rightRange = 1;
                         rightRange =  i + 1;
                         rightDone = true;
-        gameMap.removeBoxAfterExplosion(positionPos, usedBy);
+                        gameMap.removeBoxAfterExplosion(positionPos, usedBy);
                         //KAN MAAR TOT DE BOX.
                     }
 
@@ -133,8 +128,6 @@ public class Potion implements Runnable {
                     rightRange = i;
                     rightDone = true;
                     System.out.println("right wall");
-
-                  
                 }
             }
 
@@ -144,13 +137,11 @@ public class Potion implements Runnable {
                     if (!gameMap.isBoxThere(positionPos)) {
 
                         leftRange = i + 1;
-
                         //EXPLOSIE KAN NAAR LINKS.
                     } else {
                         leftRange = i + 1;
                         leftDone = true;
                         gameMap.removeBoxAfterExplosion(positionPos, usedBy);
-         
                         //KAN MAAR TOT DE BOX.
                     }
 
@@ -158,7 +149,6 @@ public class Potion implements Runnable {
                     leftRange = i;
                     leftDone = true;
                    System.out.println("left wall");
-
                 }
             }
 
@@ -174,27 +164,19 @@ public class Potion implements Runnable {
                         gameMap.removeBoxAfterExplosion(positionPos, usedBy);    
                         //KAN MAAR TOT DE BOX.
                     }
-
                 } else {
                     downRange  = i;
                     downDone = true;
                         System.out.println("down wall");
-
                 }
             }
-
           }
-   
-                          downDone = false;
-                         leftDone = false;
-                         rightDone = false;
-                        upDone = false;
+            downDone = false;
+            leftDone = false;
+            rightDone = false;
+            upDone = false;
 //        }
-                
-          
-        }
-    
-    
+}
 
 //    enum bombDirection
 //    {
@@ -216,7 +198,6 @@ public class Potion implements Runnable {
         }
     }
   
-
     public Sound getExplosionSound() {
         return explosionSound;
     }
@@ -264,5 +245,4 @@ public class Potion implements Runnable {
     public void setBombImage(Image bombImage) {
         this.bombImage = bombImage;
     }
-
 }

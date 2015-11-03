@@ -46,9 +46,8 @@ public class Player implements Comparator<Player>
         private Sound bSound;
         
      public Player(){}
-     public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) {
-        
-      
+     public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) 
+     {
         this.x = posX;
         this.y = posY;
         this.width = width;
@@ -63,11 +62,12 @@ public class Player implements Comparator<Player>
         
         setAnimations(1);
     }
-           @Override
-            public int compare(Player p1, Player p2){
-             return p1.score - p2.score;
-             
-            }
+    
+    @Override
+    public int compare(Player p1, Player p2)
+    {
+        return p1.score - p2.score;
+    }
 //
 //    public int getPosX() {
 //        return posX;
@@ -101,7 +101,6 @@ public class Player implements Comparator<Player>
         this.height = height;
     }
 
-
     public float getSpeed() {
         return speed;
     }
@@ -109,16 +108,13 @@ public class Player implements Comparator<Player>
     public void setSpeed(float speed) {
         this.speed = speed;
     }
-
-  
     
-     public void setAnimations(int verticaltotal) {
+    public void setAnimations(int verticaltotal) {
 
-
-         up = new Animation();
-         down = new Animation();
-         right = new Animation();
-         left = new Animation();
+        up = new Animation();
+        down = new Animation();
+        right = new Animation();
+        left = new Animation();
 
         up.setAutoUpdate(true);
         down.setAutoUpdate(true);
@@ -183,24 +179,20 @@ public class Player implements Comparator<Player>
      
     public void placeBomb()
     {
+        if(placedBombs.size() < (maxBombCount + powerUpBombCount))
+        {
+            //MEN IS NIET EEN BOM AANT PLATSEN, JE MAG HEM NOG PLAATSEN?
+            Potion bomb = new Potion(this.x, this.y, gMap, bAnim, bImg,bSound, this);
+            bomb.hasExploded = false;
+            bombIterator.add(bomb);
+            System.out.println("Sizeu" + placedBombs.size());
 
-           if(placedBombs.size() < (maxBombCount + powerUpBombCount))
-                        {
-                            
-                            //MEN IS NIET EEN BOM AANT PLATSEN, JE MAG HEM NOG PLAATSEN?
-                            Potion bomb = new Potion(this.x, this.y, gMap, bAnim, bImg,bSound, this);
-                            bomb.hasExploded = false;
-                            bombIterator.add(bomb);
-                           System.out.println("Sizeu" + placedBombs.size());
-
-                            Thread thr = new Thread(bomb);
-                            thr.start();
-                       
-                        }
-          else
-                        {
-                            //ER ZIJN AL ZAT BOMMEN, DOE NIKS.
-                        }
-
+            Thread thr = new Thread(bomb);
+            thr.start();            
+        }
+        else
+        {
+             //ER ZIJN AL ZAT BOMMEN, DOE NIKS.
+        }
     }     
 }

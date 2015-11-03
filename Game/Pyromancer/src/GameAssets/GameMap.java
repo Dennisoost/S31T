@@ -35,7 +35,7 @@ public class GameMap {
     {
       tiledMap = new TiledMap("/MAP/testmap.tmx");
     }
-         public GameMap(Image boxIMG, Image flagIMG, ArrayList generatedPowerUps) throws SlickException {
+        public GameMap(Image boxIMG, Image flagIMG, ArrayList generatedPowerUps) throws SlickException {
         tiledMap = new TiledMap("/MAP/testmap.tmx");
         this.boxImage = boxIMG;
         this.flagImage = flagIMG;
@@ -48,7 +48,6 @@ public class GameMap {
 
     public void GenerateBoxes() {
       
-       
         int objectLayer = tiledMap.getLayerIndex("Walls");
         System.out.println("found layer id for boxes: " + objectLayer);
         for(int column = 0; column < 20; column++)
@@ -65,14 +64,11 @@ public class GameMap {
                        b = new Box(32, 32, p, boxImage);
                        generatedBoxes.add(b);
                     }
-                  
                 }
             }
         }
-        
         setSpawnBoxes();
-
-    }
+}
     
     public void setSpawnBoxes() {
         Random rndm = new Random();
@@ -117,10 +113,7 @@ public class GameMap {
             flag.setIsInBox(true);
             randomBox.setContainsFlag(true);
         }
-
     }
-
-  
 
     private boolean checkLocation(Point p) {
     
@@ -214,7 +207,7 @@ public class GameMap {
         this.flagImage = flagImage;
     }
     
-        public boolean isBoxThere(Point p)
+    public boolean isBoxThere(Point p)
     {
         for(Box b : spawnBoxes)
         {
@@ -223,12 +216,11 @@ public class GameMap {
                 return true;
             }
         }
-        
         return false;
     }
         
 
-         public boolean removeBoxAfterExplosion(Point p, Player pl)
+    public boolean removeBoxAfterExplosion(Point p, Player pl)
     {
         Box toRemove = new Box();
         PowerUp power;
@@ -240,8 +232,7 @@ public class GameMap {
                 if(b.isHasPowerUp())
                 {
                     toRemove.hiddenPowerUp.isPickedUp = false;
-                     powerUps.get(powerUps.indexOf(b.hiddenPowerUp)).isDropped = true;
-
+                    powerUps.get(powerUps.indexOf(b.hiddenPowerUp)).isDropped = true;
                 }
             }
         }
@@ -257,9 +248,8 @@ public class GameMap {
         return false;
     }
          
-       public void checkForPickup(Point p, Player play)
-       {
-           
+    public void checkForPickup(Point p, Player play)
+    {
            PowerUp placePower  = new PowerUp(null,null);
            for(PowerUp pup : powerUps)
            {
@@ -269,17 +259,18 @@ public class GameMap {
                    pup.isPickedUp = true;
                    if (pup.type.equals(PowerUp.PowerUpType.Bomb))
                    {
-                     play.powerUpBombCount++;
-                     
-                     
-                   } else if (pup.type.equals(PowerUp.PowerUpType.Flag))
+                     play.powerUpBombCount++;                   
+                   } 
+                   else if (pup.type.equals(PowerUp.PowerUpType.Flag))
                    {
                        play.hasFlag = true;
 
-                   } else if (pup.type.equals(PowerUp.PowerUpType.Kick))
+                   } 
+                   else if (pup.type.equals(PowerUp.PowerUpType.Kick))
                    {
                        play.powerUpCanKick = true; 
-                   } else if (pup.type.equals(PowerUp.PowerUpType.Range))
+                   } 
+                   else if (pup.type.equals(PowerUp.PowerUpType.Range))
                    {
                        play.powerUpRangeCount++;
                    }
@@ -287,15 +278,8 @@ public class GameMap {
                    {
                        play.powerUpSpeedCount++;
                    }
-                   
-                 
                }
            }
-           
-           powerUps.remove(placePower);
-           
-       }
-    
-    
-
+           powerUps.remove(placePower);    
+    }
 }

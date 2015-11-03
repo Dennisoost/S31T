@@ -78,6 +78,5 @@ public class PowerUp {
                 player.hasFlag = true;
                 break;
         } 
-
     }
 }

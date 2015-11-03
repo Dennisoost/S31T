@@ -60,8 +60,4 @@ public class WallBlock {
     public void setLocation(Point location) {
         this.location = location;
     }
-    
-    
-    
-    
 }

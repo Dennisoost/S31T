@@ -30,7 +30,7 @@ public class Flag
         this.pickedUp = false;
     }
     
-       public boolean isIsInBox() {
+    public boolean isIsInBox() {
         return isInBox;
     }
 
@@ -45,7 +45,6 @@ public class Flag
     public void setPickedUp(boolean pickedUp) {
         this.pickedUp = pickedUp;
     }
-    
  
     public Point getLocation() {
         return location;
