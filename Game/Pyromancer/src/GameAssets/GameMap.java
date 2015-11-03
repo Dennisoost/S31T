@@ -7,6 +7,7 @@ package GameAssets;
 
 import IngameAssets.Box;
 import IngameAssets.Flag;
+import IngameAssets.Potion;
 import IngameAssets.PowerUp;
 import java.util.ArrayList;
 import java.util.Random;
@@ -75,7 +76,7 @@ public class GameMap {
         spawnBoxes = new ArrayList<>();
         ArrayList<Box> notSpawned = generatedBoxes;
 
-         for(int i = 0; i < 20; i++)
+         for(int i = 0; i < 80; i++)
          {
             int index = rndm.nextInt(generatedBoxes.size());
             Box randomBox = generatedBoxes.get(index);
@@ -248,7 +249,7 @@ public class GameMap {
         return false;
     }
          
-    public void checkForPickup(Point p, Player play)
+    public PowerUp checkForPickup(Point p, Player play)
     {
            PowerUp placePower  = new PowerUp(null,null);
            for(PowerUp pup : powerUps)
@@ -281,5 +282,123 @@ public class GameMap {
                }
            }
            powerUps.remove(placePower);    
+           return placePower;
+    }
+    
+    public Potion checkForPotions(Point p, Player play)
+    {
+        if(play.placedBombs.size() > 0)
+        {
+         for(Potion pot : play.placedBombs)
+                {
+                    if(pot.getLocation().equals(p))
+                    {
+                        return pot;
+                    }
+                }
+        }
+       
+        return null;
+ 
+    }
+    
+    public int kickIfPotion(Player player, Potion potion)
+    {
+          int wallLayer = tiledMap.getLayerIndex("Walls");
+          System.out.println("inkickpotion, wall layer :"  + wallLayer);
+          if(player.direction == Player.moveDirection.Down)
+          {
+              System.out.println("player is moving down");
+              int downAmount = 0; 
+              for(int i = 0; i < 13; i++)
+                 {
+                      Point positionPos = new Point(potion.getLocation().getX(),potion.getLocation().getY() + i);           
+                      if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
+                      {
+                          if(!isBoxThere(positionPos))
+                          {
+                              downAmount++; 
+                          }
+                          else
+                          {
+                             return downAmount;
+                          }
+                      }
+                      else
+                      {
+                          return downAmount;
+                      }
+                 }
+              }
+              
+          if(player.direction == Player.moveDirection.Up)
+          {
+            
+                 int upAmount = 0;
+
+                 for(int i = 0; i < 13; i++)
+                 {
+                      Point positionPos = new Point(potion.getLocation().getX(),potion.getLocation().getY() - i);           
+                      if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
+                      {
+                          if(!isBoxThere(positionPos))
+                          {
+                              upAmount++; 
+                          }
+                          else
+                          {
+                              return upAmount;
+
+                          }
+                      }
+                 }
+              
+          }        
+          if(player.direction == Player.moveDirection.Right)
+          {
+             
+                 int rightAmount = 0;
+
+                 for(int i = 0; i < 13; i++)
+                 {
+                      Point positionPos = new Point(potion.getLocation().getX() + i,potion.getLocation().getY());           
+                      if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
+                      {
+                          if(!isBoxThere(positionPos))
+                          {
+                              rightAmount++; 
+                          }
+                          else
+                          {
+                              return rightAmount;
+                              
+                          }
+                      }
+                 }
+              
+          } 
+          if(player.direction == Player.moveDirection.Left)
+          {
+                 int leftAmount = 0;
+
+                 for(int i = 0; i < 13; i++)
+                 {
+                      Point positionPos = new Point(potion.getLocation().getX() - i,potion.getLocation().getY());           
+                      if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
+                      {
+                          if(!isBoxThere(positionPos))
+                          {
+                              leftAmount++; 
+                          }
+                          else
+                          {
+                              return leftAmount;                                  
+                          }
+                      }
+                 }
+              
+          }
+       
+          return 0;
     }
 }

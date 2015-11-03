@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Animation;
@@ -65,7 +67,14 @@ public class Pyromancer extends BasicGame {
     int respawnStart = 0;
     int respawnEnd = 3000;
     
+    boolean movingBomb = false;
+    int movingBombStartX =0;
+    int movingBombStartY = 0;
     
+    int movingBombTargetX = 0;
+    int movingBombTargetY = 0;
+    float t = 0;
+    Potion movingPot;
     
     public Pyromancer(String title) {
         super(title);
@@ -85,24 +94,28 @@ public class Pyromancer extends BasicGame {
             g.drawImage(toSpawnBoxes.get(b).getImage(),  (toSpawnBoxes.get(b).xyPoint.getX()* 32) + 5, (toSpawnBoxes.get(b).xyPoint.getY() * 32) + 5);
         }
         
-        if(player1.bombIterator.hasNext())
+        synchronized(player1.placedBombs)
         {
-            if (!player1.bombIterator.next().hasExploded) 
+                if(player1.placedBombs.size() > 0)
+        {
+            for(Potion potion : player1.placedBombs)
             {
-                g.drawImage(player1.bombIterator.next().getBombImage(), (player1.bombIterator.next().getLocation().getX() * 32) + 5, (player1.bombIterator.next().getLocation().getY() * 32) + 5);
+                   if (!potion.hasExploded) 
+            {
+                g.drawImage(potion.getBombImage(), (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
             } 
             else 
             {
-                player1.bombIterator.next().getExplodeAnimation().start();
+                potion.getExplodeAnimation().start();
                     
-                int posX = player1.bombIterator.next().getLocation().getX();
-                int posY = player1.bombIterator.next().getLocation().getY();
-                if (player1.bombIterator.next().downRange != 0)
+                int posX = potion.getLocation().getX();
+                int posY = potion.getLocation().getY();
+                if (potion.downRange != 0)
                 {
-                    for(int d = 0; d < player1.bombIterator.next().downRange; d++)
+                    for(int d = 0; d < potion.downRange; d++)
                     {                          
-                        g.drawAnimation(player1.bombIterator.next().getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);   
-                        if(player1.bombIterator.next().checkForPlayer(player1, new Point(posX, posY +d)))
+                        g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);   
+                        if(potion.checkForPlayer(player1, new Point(posX, posY +d)))
                         {
                             player1.hasBeenKilled = true;
                             player1.x = 1;
@@ -110,12 +123,12 @@ public class Pyromancer extends BasicGame {
                         }
                     }
                 }
-                if (player1.bombIterator.next().upRange != 0) 
+                if (potion.upRange != 0) 
                 {
-                    for(int u = 0; u < player1.bombIterator.next().upRange; u++)
+                    for(int u = 0; u < potion.upRange; u++)
                     {                          
-                        g.drawAnimation(player1.bombIterator.next().getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);  
-                        if(player1.bombIterator.next().checkForPlayer(player1, new Point(posX, posY - u)))
+                        g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);  
+                        if(potion.checkForPlayer(player1, new Point(posX, posY - u)))
                         {
                             player1.hasBeenKilled = true;
                             player1.x = 1;
@@ -124,12 +137,12 @@ public class Pyromancer extends BasicGame {
                     }     
                 }
 
-                if (player1.bombIterator.next().leftRange != 0) 
+                if (potion.leftRange != 0) 
                 {
-                    for(int l = 0; l < player1.bombIterator.next().leftRange; l++)
+                    for(int l = 0; l < potion.leftRange; l++)
                     {                          
-                        g.drawAnimation(player1.bombIterator.next().getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);            
-                        if(player1.bombIterator.next().checkForPlayer(player1, new Point(posX - l, posY)))
+                        g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);            
+                        if(potion.checkForPlayer(player1, new Point(posX - l, posY)))
                         {
                             player1.hasBeenKilled = true;
                             player1.x = 1;
@@ -138,12 +151,12 @@ public class Pyromancer extends BasicGame {
                     }        
                 }
                     
-                if (player1.bombIterator.next().rightRange != 0) 
+                if (potion.rightRange != 0) 
                 {
-                    for(int r = 0; r < player1.bombIterator.next().rightRange; r++)
+                    for(int r = 0; r < potion.rightRange; r++)
                     {                          
-                        g.drawAnimation(player1.bombIterator.next().getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);                 
-                        if(player1.bombIterator.next().checkForPlayer(player1, new Point(posX + r, posY)))
+                        g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);                 
+                        if(potion.checkForPlayer(player1, new Point(posX + r, posY)))
                         {
                             player1.hasBeenKilled = true;
                             player1.x = 1;
@@ -153,11 +166,15 @@ public class Pyromancer extends BasicGame {
                 }
                         
                 Timer t = new Timer();
-                t.schedule(new WaitforAnim(), 1500); 
+                t.schedule(new WaitforAnim(potion), 1500); 
+            
             }
- 
+        }
+
         }
      
+        }
+    
         if(powerUps.size() > 0)
         {
             for(PowerUp pw : powerUps)
@@ -263,6 +280,8 @@ public class Pyromancer extends BasicGame {
             Collections.reverse(players);
         }
         
+    
+        
         gameDuration -= i;
         
         time++;
@@ -270,33 +289,83 @@ public class Pyromancer extends BasicGame {
             if (gc.getInput().isKeyDown(Input.KEY_RIGHT)) {
                 player1.setCurrentSprite(player1.getRight());
                
-                if (tiledMap.getTileId(player1.x + 1, player1.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x + 1, player1.y)) && !isBombThere(new Point(player1.x + 1, player1.y))) {
-                    gameMap.checkForPickup(new Point(player1.x + 1, player1.y), player1);
+                if (tiledMap.getTileId(player1.x + 1, player1.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x + 1, player1.y))) {
+                    player1.direction = Player.moveDirection.Right;
+                    Point checkingPoint = new Point(player1.x + 1, player1.y);
+                    gameMap.checkForPickup(checkingPoint, player1);
+                    Potion foundPotion = gameMap.checkForPotions(checkingPoint, player1);
+                    if(foundPotion != null)
+                    {
+                        gameMap.kickIfPotion(player1, foundPotion);
+                    }
                     player1.x++;
                 }
             }
             else if (gc.getInput().isKeyDown(Input.KEY_LEFT)) {
                 player1.setCurrentSprite(player1.getLeft());
 
-                if (tiledMap.getTileId(player1.x - 1, player1.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x - 1, player1.y))  && !isBombThere(new Point(player1.x - 1, player1.y))) {
-                    gameMap.checkForPickup(new Point(player1.x - 1, player1.y), player1);
+                if (tiledMap.getTileId(player1.x - 1, player1.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x - 1, player1.y))) {
+                    player1.direction = Player.moveDirection.Left;
+                    Point checkingPoint = new Point(player1.x - 1, player1.y);
+                    gameMap.checkForPickup(checkingPoint, player1);
+                    Potion foundPotion = gameMap.checkForPotions(checkingPoint, player1);
+                    if(foundPotion != null)
+                    {
+                        gameMap.kickIfPotion(player1, foundPotion);
+                    }
                     player1.x--;
                 }
             }
             else  if (gc.getInput().isKeyDown(Input.KEY_UP)) {
                 player1.setCurrentSprite(player1.getUp());
 
-                if (tiledMap.getTileId(player1.x, player1.y - 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x, player1.y - 1))  && !isBombThere(new Point(player1.x, player1.y -1))) {
-                    gameMap.checkForPickup(new Point(player1.x, player1.y - 1), player1);
+                if (tiledMap.getTileId(player1.x, player1.y - 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x, player1.y - 1))) {
+                    player1.direction = Player.moveDirection.Up;
+                    Point checkingPoint = new Point(player1.x, player1.y - 1);
+                     gameMap.checkForPickup(checkingPoint, player1);
+                    Potion foundPotion = gameMap.checkForPotions(checkingPoint, player1);
+                    if(foundPotion != null)
+                    {
+                        gameMap.kickIfPotion(player1, foundPotion);
+                    }
                     player1.y--;
                 }
             }
             else if (gc.getInput().isKeyDown(Input.KEY_DOWN)) {
                 player1.setCurrentSprite(player1.getDown());
 
-                if (tiledMap.getTileId(player1.x, player1.y + 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x, player1.y + 1)) && !isBombThere(new Point(player1.x, player1.y + 1))) {
-                    gameMap.checkForPickup(new Point(player1.x, player1.y + 1), player1);
-                    player1.y++;
+                if (tiledMap.getTileId(player1.x, player1.y + 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x, player1.y + 1))) {
+                    player1.direction = Player.moveDirection.Down;                   
+                    Point checkingPoint = new Point(player1.x, player1.y + 1);
+
+                     gameMap.checkForPickup(checkingPoint, player1);
+                    Potion foundPotion = isBombThere(checkingPoint);
+                    if(foundPotion != null)
+                    {
+                        if(player1.powerUpCanKick)
+                        {
+                         int amountDown = gameMap.kickIfPotion(player1, foundPotion) -1;
+                         Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() + amountDown);
+                     
+                         Timer t = new Timer();
+                         t.schedule(new MoveBombSlowly(player1.direction, foundPotion, newLoc), 100);
+
+                         
+                        
+                         //player1.y++;
+                        }
+                        else
+                        {
+                            
+                        }
+                     
+                    }
+                    else
+                    {
+                            player1.y++;
+                    }
+                    
+                  
                 }
             }
             time = 0;
@@ -306,8 +375,21 @@ public class Pyromancer extends BasicGame {
                 player1.gMap = gameMap;
                 player1.placeBomb();
             }
+            
+            if(gc.getInput().isKeyPressed(Input.KEY_ESCAPE))
+            {
+                app.exit();
+            }
         }
     }
+    
+    public static float lerp(float a, float b, float t) {
+      if (t < 0)
+         return a;
+
+      return a + t * (b - a);
+   }
+
     
     public void drawPowerUps(Player p, Graphics g) {
 
@@ -407,10 +489,10 @@ public class Pyromancer extends BasicGame {
         player3.score = 0;
         player4.score = 0;
         
-        player3.hasFlag = true;
         
+
         players.add(player1);
-    
+        player1.powerUpCanKick = true;
         time = 0;
         
         Font awtFont = new Font("Neou", Font.BOLD, 24);
@@ -434,16 +516,19 @@ public class Pyromancer extends BasicGame {
         } catch (SlickException ex) {
             ex.printStackTrace();
         }
+        
+   
         // TODO code application logic here
     }
+
+       
     
     public class WaitforAnim extends TimerTask {
  
-       Potion p; 
-       
-       public WaitforAnim()
-       {
-  
+        Potion p;
+       public WaitforAnim(Potion pot)
+       { 
+           p = pot;
        }
        
         @Override
@@ -455,20 +540,68 @@ public class Pyromancer extends BasicGame {
         private void completeTask() {
 
             shouldBoom = false;
-            player1.bombIterator.next().getExplodeAnimation().stop();
-            player1.bombIterator.remove();
+               p.getExplodeAnimation().stop();
+            synchronized(player1.placedBombs)
+            {
+                      player1.placedBombs.remove(p);
+            }
+         
+      
         }
     }
     
-    public boolean isBombThere(Point p)
-    {
-        while(player1.bombIterator.hasNext())
+      public class MoveBombSlowly extends TimerTask {
+ 
+        Potion movingPotion; 
+        Point wantedLoc;
+        Player.moveDirection moveDir;
+        int distance;
+    
+       public MoveBombSlowly(Player.moveDirection direction, Potion pot, Point wantedPoint)
+       { 
+            movingPotion = pot;
+            wantedLoc  = wantedPoint;
+            moveDir = direction;
+       }
+       
+        @Override
+        public void run() 
         {
-            if(p.equals(player1.bombIterator.next()))
+            if(moveDir.equals(Player.moveDirection.Down))
             {
-                return true;
+              int distanceY = wantedLoc.getY() - movingPotion.getLocation().getY();
+              int movingDistance = distanceY / 4;
+                while(!movingPotion.getLocation().equals(wantedLoc))
+                    {
+                           movingPotion.setLocation(new Point(movingPotion.getLocation().getX(), movingPotion.getLocation().getY() + movingDistance));
+                  try {
+                      Thread.sleep(200);
+                  } catch (InterruptedException ex) {
+                      Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                  }
+                    }
+            }
+                
+       
+        }
+    
+     
+         
+      
+        
+    }
+    
+    public Potion isBombThere(Point p)
+    {
+        
+        for(Potion potion : player1.placedBombs)
+        {
+            if(p.equals(potion.getLocation()))
+            {
+                return potion;
             }
         }
-        return false;
+        return null;
+   
     }
 }

@@ -99,7 +99,6 @@ public class Potion implements Runnable {
                 } 
                 else {
                     upRange = i;
-                    System.out.println("up wall");
                     //IS WALL
                     upDone = true;
                 }
@@ -127,7 +126,6 @@ public class Potion implements Runnable {
                 } else {
                     rightRange = i;
                     rightDone = true;
-                    System.out.println("right wall");
                 }
             }
 
@@ -148,7 +146,6 @@ public class Potion implements Runnable {
                 } else {
                     leftRange = i;
                     leftDone = true;
-                   System.out.println("left wall");
                 }
             }
 
@@ -167,7 +164,6 @@ public class Potion implements Runnable {
                 } else {
                     downRange  = i;
                     downDone = true;
-                        System.out.println("down wall");
                 }
             }
           }

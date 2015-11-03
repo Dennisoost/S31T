@@ -33,7 +33,7 @@ public class Player implements Comparator<Player>
         public boolean powerUpCanKick = false;
         public int maxBombCount = 2;
         public ArrayList<Potion> placedBombs;
-        public ListIterator<Potion> bombIterator;
+        public moveDirection direction;
         
         public boolean isPlacingBomb = false;
         
@@ -45,6 +45,14 @@ public class Player implements Comparator<Player>
         private Image bImg;
         private Sound bSound;
         
+        public enum moveDirection
+            {
+                Left,
+                Right,
+                Up,
+                Down
+            }
+        
      public Player(){}
      public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) 
      {
@@ -53,7 +61,6 @@ public class Player implements Comparator<Player>
         this.width = width;
         this.height = height;
         placedBombs = new ArrayList<Potion>();
-        bombIterator = placedBombs.listIterator();
         //this.boundingBox = new Rectangle(this.posX, this.posY, this.width, this.height);
         this.sprites = ss;
         this.bAnim = bombAnim;
@@ -184,9 +191,10 @@ public class Player implements Comparator<Player>
             //MEN IS NIET EEN BOM AANT PLATSEN, JE MAG HEM NOG PLAATSEN?
             Potion bomb = new Potion(this.x, this.y, gMap, bAnim, bImg,bSound, this);
             bomb.hasExploded = false;
-            bombIterator.add(bomb);
+            placedBombs.add(bomb);
             System.out.println("Sizeu" + placedBombs.size());
 
+            System.out.print("loc of bomb: " + bomb.getLocation().getX() + "," + bomb.getLocation().getY());
             Thread thr = new Thread(bomb);
             thr.start();            
         }
