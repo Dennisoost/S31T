@@ -229,10 +229,10 @@ public class GameMap {
     }
         
 
-    
-         public boolean removeBoxAfterExplosion(Point p)
+         public boolean removeBoxAfterExplosion(Point p, Player pl)
     {
         Box toRemove = new Box();
+        PowerUp power;
         for(Box b : spawnBoxes)
         {
             if(p.equals(b.xyPoint))
@@ -241,6 +241,8 @@ public class GameMap {
                 if(b.isHasPowerUp())
                 {
                     toRemove.hiddenPowerUp.isPickedUp = false;
+                     powerUps.get(powerUps.indexOf(b.hiddenPowerUp)).isDropped = true;
+
                 }
             }
         }
@@ -250,11 +252,50 @@ public class GameMap {
         {
             toRemove.hiddenPowerUp.isDropped = true;
         }
-        //ptoScore.score += 20;
+        pl.score += 20;
         System.out.println("BOX DESTROOOOOYED");
         
         return false;
     }
+         
+       public void checkForPickup(Point p, Player play)
+       {
+           
+           PowerUp placePower  = new PowerUp(null,null);
+           for(PowerUp pup : powerUps)
+           {
+               if(pup.location.equals(p))
+               {
+                   placePower = pup;
+                   pup.isPickedUp = true;
+                   if (pup.type.equals(PowerUp.PowerUpType.Bomb))
+                   {
+                     play.powerUpBombCount++;
+                     
+                     
+                   } else if (pup.type.equals(PowerUp.PowerUpType.Flag))
+                   {
+                       play.hasFlag = true;
+
+                   } else if (pup.type.equals(PowerUp.PowerUpType.Kick))
+                   {
+                       play.powerUpCanKick = true; 
+                   } else if (pup.type.equals(PowerUp.PowerUpType.Range))
+                   {
+                       play.powerUpRangeCount++;
+                   }
+                   else if (pup.type.equals(PowerUp.PowerUpType.Speed)) 
+                   {
+                       play.powerUpSpeedCount++;
+                   }
+                   
+                 
+               }
+           }
+           
+           powerUps.remove(placePower);
+           
+       }
     
     
 

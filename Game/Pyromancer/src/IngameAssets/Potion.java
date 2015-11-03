@@ -77,11 +77,11 @@ public class Potion implements Runnable {
 
     }
 
-    public void explodeBomb() throws SlickException {
+   public void explodeBomb() throws SlickException {
         int wallLayer = tiledMap.getLayerIndex("Walls");
         
-            
-                     for (int i = 0; i < this.range; i++) {
+            range += usedBy.powerUpRangeCount;
+                 for (int i = 0; i < this.range; i++) {
             if (!upDone) {
                 Point positionPos = new Point(this.location.getX(), this.getLocation().getY() - i);
                              
@@ -97,8 +97,7 @@ public class Potion implements Runnable {
                             {
                                 upRange =  i + 1;
                                 upDone = true;
-                                gameMap.removeBoxAfterExplosion(positionPos);
-                                //KAN MAAR TOT DE BOX.
+                                 gameMap.removeBoxAfterExplosion(positionPos, usedBy);                                //KAN MAAR TOT DE BOX.
                             }
                 } else {
                     upRange = i;
@@ -126,8 +125,7 @@ public class Potion implements Runnable {
                         // rightRange = 1;
                         rightRange =  i + 1;
                         rightDone = true;
-                         gameMap.removeBoxAfterExplosion(positionPos);
-
+        gameMap.removeBoxAfterExplosion(positionPos, usedBy);
                         //KAN MAAR TOT DE BOX.
                     }
 
@@ -151,7 +149,7 @@ public class Potion implements Runnable {
                     } else {
                         leftRange = i + 1;
                         leftDone = true;
-                        gameMap.removeBoxAfterExplosion(positionPos);
+                        gameMap.removeBoxAfterExplosion(positionPos, usedBy);
          
                         //KAN MAAR TOT DE BOX.
                     }
@@ -173,7 +171,7 @@ public class Potion implements Runnable {
                     } else {
                         downRange = i + 1;
                         downDone = true;
-                        gameMap.removeBoxAfterExplosion(positionPos);
+                        gameMap.removeBoxAfterExplosion(positionPos, usedBy);    
                         //KAN MAAR TOT DE BOX.
                     }
 
@@ -191,10 +189,11 @@ public class Potion implements Runnable {
                          leftDone = false;
                          rightDone = false;
                         upDone = false;
+//        }
+                
           
         }
     
-      
     
 
 //    enum bombDirection

@@ -180,7 +180,7 @@ public class Player implements Comparator<Player>
     public void placeBomb()
     {
    
-              if(placedBombs.size() < maxBombCount)
+           if(placedBombs.size() < (maxBombCount + powerUpBombCount))
                         {
                             //MEN IS NIET EEN BOM AANT PLATSEN, JE MAG HEM NOG PLAATSEN?
                             Potion bomb = new Potion(this.x, this.y, gMap, bAnim, bImg,bSound, this);
