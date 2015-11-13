@@ -20,6 +20,8 @@ public class Flag
     private Box hidingBox; 
     private Point location;
     private boolean pickedUp; 
+    public boolean firstPickUp = false;
+
     private Image flagImage; 
 
 
@@ -28,6 +30,7 @@ public class Flag
         this.location = location;
         this.flagImage = flagImage;
         this.pickedUp = false;
+        this.firstPickUp = false;
     }
     
     public boolean isIsInBox() {

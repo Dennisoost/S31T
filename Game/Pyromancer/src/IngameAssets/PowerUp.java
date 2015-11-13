@@ -28,6 +28,7 @@ public class PowerUp {
     public Point location;
     public Image itemImage;
     public boolean isPickedUp; 
+    public boolean isPickedUpOnce;
     public Player player;
     public boolean isDropped;
     
@@ -37,6 +38,7 @@ public class PowerUp {
         this.itemImage = itemImage;
         this.isPickedUp = false;
         this.isDropped = false;
+        this.isPickedUpOnce = false;
     }
 
     public PowerUpType getType() {
@@ -79,4 +81,5 @@ public class PowerUp {
                 break;
         } 
     }
+
 }

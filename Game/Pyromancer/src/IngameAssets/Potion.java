@@ -34,7 +34,7 @@ public class Potion implements Runnable {
     private Point location;
     private int range = 4;
     public int upRange, rightRange, downRange, leftRange;
-    public boolean upDone, rightDone, downDone, leftDone;
+    public boolean upDone, rightDone, downDone, leftDone, shouldCheckVal;
     public ArrayList<Integer> ranges;
     private Image bombImage;
     GameContainer gamecol;
@@ -55,6 +55,7 @@ public class Potion implements Runnable {
         this.bombImage = bombImage;
         this.explosionSound = explosionSound;
         this.usedBy = usedByPlayer;
+        shouldCheckVal = false;
     }
 
     @Override
@@ -182,16 +183,54 @@ public class Potion implements Runnable {
 //        Down
 //    }
    
-    public boolean checkForPlayer(Player player, Point p)
+    public void checkForPlayer(Point p)
     {
-        if(player.x == p.getX() && player.y == p.getY())
+        ArrayList<Player> allPlayers = gameMap.players;
+        
+        for(Player pl : allPlayers)
         {
-            return true;
-        }
-        else
+                if(pl.x == p.getX() && pl.y == p.getY())
         {
-            return false;
+   
+            if(pl != usedBy)
+            {
+                if(!pl.beingKilled)
+                {
+                      if(shouldCheckVal)
+                {
+                    if (pl.hasFlag) {
+                        gameMap.getFlag().location.setLocation(pl.x, pl.y);
+                        gameMap.getFlag().isDropped = true;
+                        gameMap.getFlag().isPickedUp = false;
+                        gameMap.getFlag().location.setLocation(pl.x, pl.y);
+                        gameMap.powerUps.add(gameMap.getFlag());
+                        pl.hasFlag = false;
+                    }
+                    pl.isKilled();
+                   usedBy.score += 100;
+           
+                   
+                }
+                }
+              
+             
+            }
+            else
+            {
+               if (pl.hasFlag) {
+                        gameMap.getFlag().location.setLocation(pl.x, pl.y);
+                        gameMap.getFlag().isDropped = true;
+                        gameMap.getFlag().isPickedUp = false;
+                        gameMap.getFlag().location.setLocation(pl.x, pl.y);
+                        gameMap.powerUps.add(gameMap.getFlag());
+                        pl.hasFlag = false;
+                    }
+                    pl.isKilled();
+            }
+           
         }
+        }
+    
     }
   
     public Sound getExplosionSound() {

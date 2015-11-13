@@ -26,8 +26,10 @@ public class GameMap {
     private ArrayList<Box> generatedBoxes, flagBoxes, spawnBoxes;
     private ArrayList<Point> boxLocations;
     public ArrayList<Point> emptySpots;
+    public ArrayList<Player> players;
+
     private Image boxImage, flagImage;
-    private Flag flag;
+    private PowerUp flag;
     private Box b;
     public  Point[] forbiddenPoints;
     public ArrayList<PowerUp> powerUps;
@@ -43,8 +45,16 @@ public class GameMap {
         generatedBoxes = new ArrayList<>();
         boxLocations = new ArrayList<>();
         flagBoxes = new ArrayList<>();
+        players = new ArrayList<>();
         powerUps = generatedPowerUps;
         GenerateBoxes();
+        for(PowerUp p : powerUps)
+        {
+            if(p.type.equals(PowerUp.PowerUpType.Flag))
+            {
+                flag = p;
+            }
+        }
     }
 
     public void GenerateBoxes() {
@@ -76,7 +86,7 @@ public class GameMap {
         spawnBoxes = new ArrayList<>();
         ArrayList<Box> notSpawned = generatedBoxes;
 
-         for(int i = 0; i < 80; i++)
+         for(int i = 0; i < 20; i++)
          {
             int index = rndm.nextInt(generatedBoxes.size());
             Box randomBox = generatedBoxes.get(index);
@@ -105,16 +115,7 @@ public class GameMap {
         }
     }
     
-    private void createAndSetFlag() {
-        Random rndm = new Random();
-        int index = rndm.nextInt(flagBoxes.size());
-        Box randomBox = flagBoxes.get(index);
-        if (spawnBoxes.contains(randomBox)) {
-            flag = new Flag(randomBox, randomBox.getLocation(), flagImage);
-            flag.setIsInBox(true);
-            randomBox.setContainsFlag(true);
-        }
-    }
+
 
     private boolean checkLocation(Point p) {
     
@@ -208,6 +209,11 @@ public class GameMap {
         this.flagImage = flagImage;
     }
     
+    public PowerUp getFlag()
+    {
+        return flag;
+    }
+    
     public boolean isBoxThere(Point p)
     {
         for(Box b : spawnBoxes)
@@ -264,7 +270,14 @@ public class GameMap {
                    } 
                    else if (pup.type.equals(PowerUp.PowerUpType.Flag))
                    {
+                   
+                       pup.isPickedUp = true;
                        play.hasFlag = true;
+                       pup.isPickedUpOnce = true;
+                       System.out.println("PLAYER [" + play.name + "] GOT THE FLAG!(" + powerUps.indexOf(pup) + ")");
+                   
+                     //  flag = new Flag(b, p, flagImage)
+               
 
                    } 
                    else if (pup.type.equals(PowerUp.PowerUpType.Kick))
@@ -350,6 +363,10 @@ public class GameMap {
                               return upAmount;
 
                           }
+                      }  
+                      else
+                      {
+                          return upAmount;
                       }
                  }
               
@@ -359,7 +376,7 @@ public class GameMap {
              
                  int rightAmount = 0;
 
-                 for(int i = 0; i < 13; i++)
+                 for(int i = 0; i < 18; i++)
                  {
                       Point positionPos = new Point(potion.getLocation().getX() + i,potion.getLocation().getY());           
                       if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
@@ -373,6 +390,10 @@ public class GameMap {
                               return rightAmount;
                               
                           }
+                      }   
+                      else
+                      {
+                          return rightAmount;
                       }
                  }
               
@@ -381,7 +402,7 @@ public class GameMap {
           {
                  int leftAmount = 0;
 
-                 for(int i = 0; i < 13; i++)
+                 for(int i = 0; i < 18; i++)
                  {
                       Point positionPos = new Point(potion.getLocation().getX() - i,potion.getLocation().getY());           
                       if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
@@ -394,7 +415,12 @@ public class GameMap {
                           {
                               return leftAmount;                                  
                           }
+                      }      
+                      else
+                      {
+                          return leftAmount;
                       }
+                      
                  }
               
           }

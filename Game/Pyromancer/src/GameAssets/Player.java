@@ -8,12 +8,22 @@ package GameAssets;
 import IngameAssets.Potion;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.ListIterator;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.lwjgl.util.Point;
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.tiled.TiledMap;
+import pyromancer.Pyromancer;
 
 /**
  *
@@ -21,22 +31,25 @@ import org.newdawn.slick.tiled.TiledMap;
  */
 public class Player implements Comparator<Player>
 {
-        public int x, y, width, height;
+        public int x, y, width, height, spawnX, spawnY;
         private float speed; 
         private SpriteSheet sprites;
+        
         
         public String name = "";
         public int score = 0;
         public int powerUpSpeedCount = 0,powerUpBombCount = 0,powerUpKickCount = 0,powerUpRangeCount = 0; 
         public boolean hasFlag = false;
-        public boolean hasBeenKilled = false;
+        public boolean beingKilled = false;
         public boolean powerUpCanKick = false;
+        
+        public boolean isHitByBomb = false;
         public int maxBombCount = 2;
         public ArrayList<Potion> placedBombs;
         public moveDirection direction;
         
         public boolean isPlacingBomb = false;
-        
+        public HashMap<String, Integer> usedControls;
         private Animation currentSprite, up, down, left, right;
         public GameMap gMap;
         public TiledMap tMap;
@@ -56,8 +69,11 @@ public class Player implements Comparator<Player>
      public Player(){}
      public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) 
      {
+   
         this.x = posX;
         this.y = posY;
+        spawnX = this.x;
+        spawnY = this.y;
         this.width = width;
         this.height = height;
         placedBombs = new ArrayList<Potion>();
@@ -66,6 +82,7 @@ public class Player implements Comparator<Player>
         this.bAnim = bombAnim;
         this.bImg = bombImage;
         this.bSound = explosionSound;
+        usedControls = new HashMap();
         
         setAnimations(1);
     }
@@ -75,22 +92,6 @@ public class Player implements Comparator<Player>
     {
         return p1.score - p2.score;
     }
-//
-//    public int getPosX() {
-//        return posX;
-//    }
-//
-//    public void setPosX(int posX) {
-//        this.posX = posX;
-//    }
-//
-//    public int getPosY() {
-//        return posY;
-//    }
-//
-//    public void setPosY(int posY) {
-//        this.posY = posY;
-//    }
 
     public int getWidth() {
         return width;
@@ -203,4 +204,311 @@ public class Player implements Comparator<Player>
              //ER ZIJN AL ZAT BOMMEN, DOE NIKS.
         }
     }     
+           
+      public void isKilled()
+      {
+          beingKilled = true;
+          System.out.println("player is ded");
+            x = spawnX;
+            y = spawnY;
+          Thread respawnTimeThread = new Thread()
+          {
+              public void run()
+              {
+                  try {    
+                      Thread.sleep(5000);
+                      beingKilled = false;
+            
+                  } catch (InterruptedException ex) {
+                      Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+                  }
+              }
+          };
+          respawnTimeThread.start();
+      }
+       
+        public void move(GameContainer gc, GameMap gameMap, boolean shouldBeStill)
+        {
+            
+            if(!beingKilled)
+            {
+                   tMap = gameMap.getTiledMap();
+                 int wallLayer = tMap.getLayerIndex("Walls");
+             
+                if (tMap.getTileId(this.x, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x, this.y))) 
+                {
+      
+                }
+
+             if (gc.getInput().isKeyDown(usedControls.get("right"))) {
+                setCurrentSprite(right);
+               
+                if (tMap.getTileId(this.x + 1, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x + 1, this.y))) {
+                    direction = Player.moveDirection.Right;
+                    Point checkingPoint = new Point(this.x + 1, this.y);
+                    gameMap.checkForPickup(checkingPoint, this);
+                    Potion foundPotion = isBombThere(checkingPoint);
+                    
+                    if (foundPotion != null) {
+                        if (powerUpCanKick) {
+                            int amountRight = gameMap.kickIfPotion(this, foundPotion) - 1;
+
+                            Point newLoc = new Point(foundPotion.getLocation().getX() + amountRight, foundPotion.getLocation().getY());
+
+                            Thread thr = new Thread() {
+                                public void run() {
+                                    while (!foundPotion.getLocation().equals(newLoc)) {
+                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX() + 1, foundPotion.getLocation().getY()));
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }
+
+                            };
+                            thr.start();
+
+                        } else {
+                        }
+                    } else {
+                        this.x++;
+                    }
+                }
+            }
+            else  if (gc.getInput().isKeyDown(usedControls.get("left"))) {
+                setCurrentSprite(left);
+
+                if (tMap.getTileId(this.x - 1, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x - 1, this.y))) {
+                    direction = Player.moveDirection.Left;
+                    Point checkingPoint = new Point(this.x - 1, this.y);
+                    gameMap.checkForPickup(checkingPoint, this);
+                    Potion foundPotion = isBombThere(checkingPoint);
+                    
+                    if (foundPotion != null) {
+                        if (powerUpCanKick) {
+                            int amountLeft = gameMap.kickIfPotion(this, foundPotion) - 1;
+
+                            Point newLoc = new Point(foundPotion.getLocation().getX() - amountLeft, foundPotion.getLocation().getY());
+
+                            Thread thr = new Thread() {
+                                public void run() {
+                                    while (!foundPotion.getLocation().equals(newLoc)) {
+                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX() - 1, foundPotion.getLocation().getY()));
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }
+
+                            };
+                            thr.start();
+
+                        } else {
+                        }
+                    } else {
+                        this.x--;
+                    }
+                }
+            }
+            else  if (gc.getInput().isKeyDown(usedControls.get("up"))) {
+                setCurrentSprite(up);
+
+                if (tMap.getTileId(this.x, this.y - 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x, this.y - 1))) {
+                    this.direction = Player.moveDirection.Up;
+                    Point checkingPoint = new Point(this.x, this.y - 1);
+                     gameMap.checkForPickup(checkingPoint, this);
+                    Potion foundPotion = isBombThere(checkingPoint);
+                  if (foundPotion != null) {
+                        if (powerUpCanKick) {
+                            int amountUp = gameMap.kickIfPotion(this, foundPotion) - 1;
+
+                            Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() - amountUp);
+
+                            Thread thr = new Thread() {
+                                public void run() {
+                                    while (!foundPotion.getLocation().equals(newLoc)) {
+                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() - 1));
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }
+
+                            };
+                            thr.start();
+
+                        } else {
+
+                        }
+
+                    } else {
+                        this.y--;
+                    }
+                }
+            }
+            else if (gc.getInput().isKeyDown(usedControls.get("down"))) {
+                setCurrentSprite(down);
+
+                if (tMap.getTileId(this.x, this.y + 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x, this.y + 1))) {
+                    this.direction = Player.moveDirection.Down;
+                    Point checkingPoint = new Point(this.x, this.y + 1);
+                    gameMap.checkForPickup(checkingPoint, this);
+                    Potion foundPotion = isBombThere(checkingPoint);
+                    
+                    if (foundPotion != null) {
+                        if (this.powerUpCanKick) {
+                            int amountDown = gameMap.kickIfPotion(this, foundPotion) - 1;
+
+                            Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() + amountDown);
+
+                            Thread thr = new Thread() {
+                                public void run() {
+                                    while (!foundPotion.getLocation().equals(newLoc)) {
+                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() + 1));
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }
+
+                            };
+                            thr.start();
+
+                        } else {
+                        }
+                    } else {
+                        this.y++;
+                    }
+                }
+            }
+             if(gc.getInput().isKeyPressed(usedControls.get("placebomb")))
+            {
+                gMap = gameMap;
+                placeBomb();
+            }
+            }
+         
+        }
+        
+            public Potion isBombThere(Point p)
+    {
+        
+        for(Potion potion : placedBombs)
+        {
+            if(p.equals(potion.getLocation()))
+            {
+                return potion;
+            }
+        }
+        return null;
+   
+    }
+     
+            
+      public void draw(Graphics g)
+    {
+          
+
+         g.drawAnimation(currentSprite, (x * 32) + 5, (y * 32) + 5);
+
+         synchronized(this.placedBombs)
+        {
+                if(this.placedBombs.size() > 0)
+        {
+            for(Potion potion : this.placedBombs)
+            {
+                   if (!potion.hasExploded) 
+            {
+                g.drawImage(potion.getBombImage(), (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
+            } 
+            else 
+            {
+                potion.getExplodeAnimation().start();
+                potion.shouldCheckVal = true;
+                int posX = potion.getLocation().getX();
+                int posY = potion.getLocation().getY();
+                if (potion.downRange != 0)
+                {
+                    for(int d = 0; d < potion.downRange; d++)
+                    {                          
+                        g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);   
+                        potion.checkForPlayer(new Point(posX,posY +d));
+                       
+                    }
+                }
+                if (potion.upRange != 0) 
+                {
+                    for(int u = 0; u < potion.upRange; u++)
+                    {                          
+                        g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);  
+                       potion.checkForPlayer(new Point(posX,posY - u));
+                    }     
+                }
+
+                if (potion.leftRange != 0) 
+                {
+                    for(int l = 0; l < potion.leftRange; l++)
+                    {                          
+                        g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);            
+                        potion.checkForPlayer(new Point(posX - l, posY));
+
+                    }        
+                }
+                    
+                if (potion.rightRange != 0) 
+                {
+                    for(int r = 0; r < potion.rightRange; r++)
+                    {                          
+                        g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);                 
+                        potion.checkForPlayer(new Point(posX + r, posY));
+
+                    }        
+                }
+                        
+                Timer t = new Timer();
+                t.schedule(new WaitforAnim(potion), 1500); 
+            
+            }
+        }
+
+        }
+     
+        }
+    }
+      
+      
+      
+      public class WaitforAnim extends TimerTask {
+ 
+        Potion p;
+       public WaitforAnim(Potion pot)
+       { 
+           p = pot;
+       }
+       
+        @Override
+        public void run() 
+        {
+            completeTask();
+        }
+    
+        private void completeTask() {
+
+              p.getExplodeAnimation().stop();
+            synchronized(placedBombs)
+            {
+                      placedBombs.remove(p);
+            }
+         
+      
+        }
+    }
 }
