@@ -68,7 +68,7 @@ public class Pyromancer extends BasicGame {
     
     boolean movingBomb = false;
     boolean startAndDisplayFlag = false;
-    
+    boolean shouldStartScores = false;
     float t = 0;
     Potion movingPot;
     
@@ -150,15 +150,33 @@ public class Pyromancer extends BasicGame {
     @Override
     public void update(GameContainer gc, int i) throws SlickException {
         int wallLayer = tiledMap.getLayerIndex("Walls");
-        sortPlayersPerSecond(i);
+        
+        if(!shouldStartScores)
+        {
+            for(Player plyr : players)
+            {
+                 if(plyr.score > 0)
+                    {
+                        shouldStartScores = true;
+                    }
+            }
+        }
+        else
+        {
+            sortPlayersPerSecond(i);
+        }
+
         if(startAndDisplayFlag && gameMap.getFlag().isPickedUp)
         {           
-            System.out.println("Current delta");
             if(readyToAddScore(i))
             { 
                 for(Player plyr : players)
                 {
-                   plyr.score += flagTime * 10;
+                   
+                    if(plyr.hasFlag)
+                    {
+                        plyr.score += flagTime * 10;
+                    }
                 } 
             }      
         }
@@ -295,7 +313,7 @@ public class Pyromancer extends BasicGame {
         numberHeights = new ArrayList<>();
         
         player1 = new Player(1, 1, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
-        player2 = new Player(13, 13, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
+        player2 = new Player(18, 13, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
         player3 = new Player();
         player4 = new Player();
    

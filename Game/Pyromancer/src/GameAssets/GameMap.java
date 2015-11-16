@@ -27,7 +27,8 @@ public class GameMap {
     private ArrayList<Point> boxLocations;
     public ArrayList<Point> emptySpots;
     public ArrayList<Player> players;
-
+    public ArrayList<Potion> allPotions; 
+    
     private Image boxImage, flagImage;
     private PowerUp flag;
     private Box b;
@@ -47,6 +48,7 @@ public class GameMap {
         boxLocations = new ArrayList<>();
         flagBoxes = new ArrayList<>();
         players = new ArrayList<>();
+        allPotions = new ArrayList<Potion>();
         powerUps = generatedPowerUps;
         GenerateBoxes();
         for(PowerUp p : powerUps)
@@ -431,4 +433,27 @@ public class GameMap {
         }
         return 0;
     }
+    
+    public boolean checkForPlayer(Point checkPoint)
+    {
+        for(Player plyr : players)
+        {
+            if(plyr.x ==checkPoint.getX() && plyr.y == checkPoint.getY())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public synchronized void addPotionToAll(Potion p)
+    {
+        allPotions.add(p);
+    }
+    
+      public synchronized void removePotionFromAll(Potion p)
+    {
+        allPotions.remove(p);
+    }
+    
 }

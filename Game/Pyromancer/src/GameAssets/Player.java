@@ -192,9 +192,12 @@ public class Player implements Comparator<Player>
             Potion bomb = new Potion(this.x, this.y, gMap, bAnim, bImg,bSound, this);
             bomb.hasExploded = false;
             placedBombs.add(bomb);
-            System.out.println("Sizeu" + placedBombs.size());
+            synchronized(gMap.allPotions)
+            {
+                gMap.addPotionToAll(bomb);
+            }
+            
 
-            System.out.print("loc of bomb: " + bomb.getLocation().getX() + "," + bomb.getLocation().getY());
             Thread thr = new Thread(bomb);
             thr.start();            
         }
@@ -207,9 +210,11 @@ public class Player implements Comparator<Player>
     public void isKilled()
     {
         beingKilled = true;
-        System.out.println("player is ded");
         x = spawnX;
         y = spawnY;
+        powerUpBombCount = 0; 
+        powerUpCanKick = false;
+        powerUpRangeCount = 0;
         Thread respawnTimeThread = new Thread()
         {
             public void run()
@@ -231,6 +236,7 @@ public class Player implements Comparator<Player>
         if(!beingKilled)
         {
             tMap = gameMap.getTiledMap();
+            gMap = gameMap;
             int wallLayer = tMap.getLayerIndex("Walls");
              
             if (tMap.getTileId(this.x, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x, this.y))) 
@@ -251,20 +257,8 @@ public class Player implements Comparator<Player>
                             int amountRight = gameMap.kickIfPotion(this, foundPotion) - 1;
 
                             Point newLoc = new Point(foundPotion.getLocation().getX() + amountRight, foundPotion.getLocation().getY());
+                             movingBomb(foundPotion, newLoc, direction);
 
-                            Thread thr = new Thread() {
-                                public void run() {
-                                    while (!foundPotion.getLocation().equals(newLoc)) {
-                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX() + 1, foundPotion.getLocation().getY()));
-                                        try {
-                                            Thread.sleep(50);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                }
-                            };
-                            thr.start();
                         }
                     } else {
                         this.x++;
@@ -285,20 +279,8 @@ public class Player implements Comparator<Player>
                             int amountLeft = gameMap.kickIfPotion(this, foundPotion) - 1;
 
                             Point newLoc = new Point(foundPotion.getLocation().getX() - amountLeft, foundPotion.getLocation().getY());
+                             movingBomb(foundPotion, newLoc, direction);
 
-                            Thread thr = new Thread() {
-                                public void run() {
-                                    while (!foundPotion.getLocation().equals(newLoc)) {
-                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX() - 1, foundPotion.getLocation().getY()));
-                                        try {
-                                            Thread.sleep(50);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                }
-                            };
-                            thr.start();
                         }
                     } else {
                         this.x--;
@@ -318,20 +300,7 @@ public class Player implements Comparator<Player>
                             int amountUp = gameMap.kickIfPotion(this, foundPotion) - 1;
 
                             Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() - amountUp);
-
-                            Thread thr = new Thread() {
-                                public void run() {
-                                    while (!foundPotion.getLocation().equals(newLoc)) {
-                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() - 1));
-                                        try {
-                                            Thread.sleep(50);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                }
-                            };
-                            thr.start();
+                             movingBomb(foundPotion, newLoc, direction);
                         }
                     } else {
                         this.y--;
@@ -352,20 +321,9 @@ public class Player implements Comparator<Player>
                             int amountDown = gameMap.kickIfPotion(this, foundPotion) - 1;
 
                             Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() + amountDown);
-
-                            Thread thr = new Thread() {
-                                public void run() {
-                                    while (!foundPotion.getLocation().equals(newLoc)) {
-                                        foundPotion.setLocation(new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() + 1));
-                                        try {
-                                            Thread.sleep(50);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                    }
-                                }
-                            };
-                            thr.start();
+                            movingBomb(foundPotion, newLoc, direction);
+                            
+                           
                         } 
                     } else {
                         this.y++;
@@ -379,16 +337,89 @@ public class Player implements Comparator<Player>
             }
         }
     }
+    
+    public void movingBomb(Potion p, Point goal, moveDirection chosenDir)
+    {
+        Point currentGoal = goal;
+            Thread thr = new Thread() {
+                                public void run() {
+                                    while (!p.getLocation().equals(currentGoal)) {
+                                      
+                                        switch(chosenDir)
+                                        {
+                                            case Down:
+                                                Point nextDownPoint = new Point(p.getLocation().getX(), p.getLocation().getY() + 1);
+                                                if(!gMap.checkForPlayer(nextDownPoint))
+                                                {
+                                                        p.setLocation(nextDownPoint);
+                                                }
+                                                else
+                                                {
+                                                    return;
+                                                }
+                                            
+                                                break;
+                                             case Up:
+                                                Point nextUpPoint = new Point(p.getLocation().getX(), p.getLocation().getY() - 1);
+                                                if(!gMap.checkForPlayer(nextUpPoint))
+                                                {
+                                                        p.setLocation(nextUpPoint);
+                                                }
+                                                      else
+                                                {
+                                                    return;
+                                                }
+                                                break;
+                                             case Right:
+                                                Point nextRightPoint = new Point(p.getLocation().getX() + 1, p.getLocation().getY());
+                                                if(!gMap.checkForPlayer(nextRightPoint))
+                                                {
+                                                        p.setLocation(nextRightPoint);
+                                                }    
+                                                else
+                                                {
+                                                    return;
+                                                }
+                                                break;
+                                             case Left:
+                                                Point nextLeftPoint = new Point(p.getLocation().getX() - 1, p.getLocation().getY());
+                                                if(!gMap.checkForPlayer(nextLeftPoint))
+                                                {
+                                                        p.setLocation(nextLeftPoint);
+                                                }
+                                                 else
+                                                {
+                                                    return;
+                                                }
+                                                break;                                                                                             
+                                        }
+                                        
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }
+                            };
+                            thr.start();
+    }
         
     public Potion isBombThere(Point p)
     {
-        for(Potion potion : placedBombs)
+        if(gMap.allPotions.size() > 0)
         {
-            if(p.equals(potion.getLocation()))
-            {
-                return potion;
+             for (Potion potion : gMap.allPotions) {
+                if (p.equals(potion.getLocation())) {
+                    return potion;
+                }
             }
         }
+        else
+        {
+            return null;
+        }
+
         return null;
     }
      
@@ -475,6 +506,12 @@ public class Player implements Comparator<Player>
             {
                 placedBombs.remove(p);
             }
+            synchronized(gMap.allPotions)
+            {
+                gMap.removePotionFromAll(p);
+            }
         }
+        
+       
     }
 }
