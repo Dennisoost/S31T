@@ -15,7 +15,6 @@ import org.newdawn.slick.geom.Rectangle;
  */
 public class Box 
 {
-
     private float width, height; 
     private Point location; 
     private Image image; 

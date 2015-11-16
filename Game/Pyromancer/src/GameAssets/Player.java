@@ -31,45 +31,44 @@ import pyromancer.Pyromancer;
  */
 public class Player implements Comparator<Player>
 {
-        public int x, y, width, height, spawnX, spawnY;
-        private float speed; 
-        private SpriteSheet sprites;
+    public int x, y, width, height, spawnX, spawnY;
+    private float speed; 
+    private SpriteSheet sprites; 
         
+    public String name = "";
+    public int score = 0;
+    public int powerUpSpeedCount = 0,powerUpBombCount = 0,powerUpKickCount = 0,powerUpRangeCount = 0; 
+    public boolean hasFlag = false;
+    public boolean beingKilled = false;
+    public boolean powerUpCanKick = false;
         
-        public String name = "";
-        public int score = 0;
-        public int powerUpSpeedCount = 0,powerUpBombCount = 0,powerUpKickCount = 0,powerUpRangeCount = 0; 
-        public boolean hasFlag = false;
-        public boolean beingKilled = false;
-        public boolean powerUpCanKick = false;
+    public boolean isHitByBomb = false;
+    public int maxBombCount = 2;
+    public ArrayList<Potion> placedBombs;
+    public moveDirection direction;
         
-        public boolean isHitByBomb = false;
-        public int maxBombCount = 2;
-        public ArrayList<Potion> placedBombs;
-        public moveDirection direction;
+    public boolean isPlacingBomb = false;
+    public HashMap<String, Integer> usedControls;
+    private Animation currentSprite, up, down, left, right;
+    public GameMap gMap;
+    public TiledMap tMap;
         
-        public boolean isPlacingBomb = false;
-        public HashMap<String, Integer> usedControls;
-        private Animation currentSprite, up, down, left, right;
-        public GameMap gMap;
-        public TiledMap tMap;
+    private Animation bAnim; 
+    private Image bImg;
+    private Sound bSound;
         
-        private Animation bAnim; 
-        private Image bImg;
-        private Sound bSound;
+    public enum moveDirection
+    {
+        Left,
+        Right,
+        Up,
+        Down
+    }
         
-        public enum moveDirection
-            {
-                Left,
-                Right,
-                Up,
-                Down
-            }
-        
-     public Player(){}
-     public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) 
-     {
-   
+    public Player(){}
+     
+    public Player(int posX, int posY, int width, int height, SpriteSheet ss,Animation bombAnim, Image bombImage, Sound explosionSound) 
+    {
         this.x = posX;
         this.y = posY;
         spawnX = this.x;
@@ -205,42 +204,40 @@ public class Player implements Comparator<Player>
         }
     }     
            
-      public void isKilled()
-      {
-          beingKilled = true;
-          System.out.println("player is ded");
-            x = spawnX;
-            y = spawnY;
-          Thread respawnTimeThread = new Thread()
-          {
-              public void run()
-              {
-                  try {    
-                      Thread.sleep(5000);
-                      beingKilled = false;
+    public void isKilled()
+    {
+        beingKilled = true;
+        System.out.println("player is ded");
+        x = spawnX;
+        y = spawnY;
+        Thread respawnTimeThread = new Thread()
+        {
+            public void run()
+            {
+                try {    
+                    Thread.sleep(5000);
+                    beingKilled = false;
             
-                  } catch (InterruptedException ex) {
-                      Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
-                  }
-              }
-          };
-          respawnTimeThread.start();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        respawnTimeThread.start();
       }
        
-        public void move(GameContainer gc, GameMap gameMap, boolean shouldBeStill)
+    public void move(GameContainer gc, GameMap gameMap, boolean shouldBeStill)
+    { 
+        if(!beingKilled)
         {
-            
-            if(!beingKilled)
-            {
-                   tMap = gameMap.getTiledMap();
-                 int wallLayer = tMap.getLayerIndex("Walls");
+            tMap = gameMap.getTiledMap();
+            int wallLayer = tMap.getLayerIndex("Walls");
              
-                if (tMap.getTileId(this.x, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x, this.y))) 
-                {
-      
-                }
+            if (tMap.getTileId(this.x, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x, this.y))) 
+            {
+            }
 
-             if (gc.getInput().isKeyDown(usedControls.get("right"))) {
+            if (gc.getInput().isKeyDown(usedControls.get("right"))) {
                 setCurrentSprite(right);
                
                 if (tMap.getTileId(this.x + 1, this.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(this.x + 1, this.y))) {
@@ -266,11 +263,8 @@ public class Player implements Comparator<Player>
                                         }
                                     }
                                 }
-
                             };
                             thr.start();
-
-                        } else {
                         }
                     } else {
                         this.x++;
@@ -303,11 +297,8 @@ public class Player implements Comparator<Player>
                                         }
                                     }
                                 }
-
                             };
                             thr.start();
-
-                        } else {
                         }
                     } else {
                         this.x--;
@@ -322,7 +313,7 @@ public class Player implements Comparator<Player>
                     Point checkingPoint = new Point(this.x, this.y - 1);
                      gameMap.checkForPickup(checkingPoint, this);
                     Potion foundPotion = isBombThere(checkingPoint);
-                  if (foundPotion != null) {
+                    if (foundPotion != null) {
                         if (powerUpCanKick) {
                             int amountUp = gameMap.kickIfPotion(this, foundPotion) - 1;
 
@@ -339,14 +330,9 @@ public class Player implements Comparator<Player>
                                         }
                                     }
                                 }
-
                             };
                             thr.start();
-
-                        } else {
-
                         }
-
                     } else {
                         this.y--;
                     }
@@ -378,29 +364,24 @@ public class Player implements Comparator<Player>
                                         }
                                     }
                                 }
-
                             };
                             thr.start();
-
-                        } else {
-                        }
+                        } 
                     } else {
                         this.y++;
                     }
                 }
             }
-             if(gc.getInput().isKeyPressed(usedControls.get("placebomb")))
+            if(gc.getInput().isKeyPressed(usedControls.get("placebomb")))
             {
                 gMap = gameMap;
                 placeBomb();
             }
-            }
-         
         }
+    }
         
-            public Potion isBombThere(Point p)
+    public Potion isBombThere(Point p)
     {
-        
         for(Potion potion : placedBombs)
         {
             if(p.equals(potion.getLocation()))
@@ -409,90 +390,77 @@ public class Player implements Comparator<Player>
             }
         }
         return null;
-   
     }
      
-            
-      public void draw(Graphics g)
+    public void draw(Graphics g)
     {
-          
+        g.drawAnimation(currentSprite, (x * 32) + 5, (y * 32) + 5);
 
-         g.drawAnimation(currentSprite, (x * 32) + 5, (y * 32) + 5);
-
-         synchronized(this.placedBombs)
+        synchronized(this.placedBombs)
         {
-                if(this.placedBombs.size() > 0)
-        {
-            for(Potion potion : this.placedBombs)
+            if(this.placedBombs.size() > 0)
             {
-                   if (!potion.hasExploded) 
-            {
-                g.drawImage(potion.getBombImage(), (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
-            } 
-            else 
-            {
-                potion.getExplodeAnimation().start();
-                potion.shouldCheckVal = true;
-                int posX = potion.getLocation().getX();
-                int posY = potion.getLocation().getY();
-                if (potion.downRange != 0)
+                for(Potion potion : this.placedBombs)
                 {
-                    for(int d = 0; d < potion.downRange; d++)
-                    {                          
-                        g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);   
-                        potion.checkForPlayer(new Point(posX,posY +d));
-                       
+                    if (!potion.hasExploded) 
+                    {
+                        g.drawImage(potion.getBombImage(), (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
+                    } 
+                    else 
+                    {
+                        potion.getExplodeAnimation().start();
+                        potion.shouldCheckVal = true;
+                        int posX = potion.getLocation().getX();
+                        int posY = potion.getLocation().getY();
+                        if (potion.downRange != 0)
+                        {
+                            for(int d = 0; d < potion.downRange; d++)
+                            {                             
+                                g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);   
+                                potion.checkForPlayer(new Point(posX,posY +d));
+                            }
+                        }
+                        if (potion.upRange != 0) 
+                        {
+                            for(int u = 0; u < potion.upRange; u++)
+                            {                          
+                                g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);  
+                                potion.checkForPlayer(new Point(posX,posY - u));
+                            }     
+                        }
+
+                        if (potion.leftRange != 0) 
+                        {
+                            for(int l = 0; l < potion.leftRange; l++)
+                            {                          
+                                g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);            
+                                potion.checkForPlayer(new Point(posX - l, posY));
+                            }        
+                        }
+                    
+                        if (potion.rightRange != 0) 
+                        {
+                            for(int r = 0; r < potion.rightRange; r++)
+                            {                          
+                                g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);                 
+                                potion.checkForPlayer(new Point(posX + r, posY));
+                            }        
+                        }
+                        Timer t = new Timer();
+                        t.schedule(new WaitforAnim(potion), 1500); 
                     }
                 }
-                if (potion.upRange != 0) 
-                {
-                    for(int u = 0; u < potion.upRange; u++)
-                    {                          
-                        g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);  
-                       potion.checkForPlayer(new Point(posX,posY - u));
-                    }     
-                }
-
-                if (potion.leftRange != 0) 
-                {
-                    for(int l = 0; l < potion.leftRange; l++)
-                    {                          
-                        g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);            
-                        potion.checkForPlayer(new Point(posX - l, posY));
-
-                    }        
-                }
-                    
-                if (potion.rightRange != 0) 
-                {
-                    for(int r = 0; r < potion.rightRange; r++)
-                    {                          
-                        g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);                 
-                        potion.checkForPlayer(new Point(posX + r, posY));
-
-                    }        
-                }
-                        
-                Timer t = new Timer();
-                t.schedule(new WaitforAnim(potion), 1500); 
-            
             }
         }
-
-        }
-     
-        }
     }
-      
-      
-      
-      public class WaitforAnim extends TimerTask {
+
+    public class WaitforAnim extends TimerTask {
  
         Potion p;
-       public WaitforAnim(Potion pot)
-       { 
-           p = pot;
-       }
+        public WaitforAnim(Potion pot)
+        { 
+            p = pot;
+        }
        
         @Override
         public void run() 
@@ -502,13 +470,11 @@ public class Player implements Comparator<Player>
     
         private void completeTask() {
 
-              p.getExplodeAnimation().stop();
+            p.getExplodeAnimation().stop();
             synchronized(placedBombs)
             {
-                      placedBombs.remove(p);
+                placedBombs.remove(p);
             }
-         
-      
         }
     }
 }

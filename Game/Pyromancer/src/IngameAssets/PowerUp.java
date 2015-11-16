@@ -17,7 +17,7 @@ public class PowerUp {
     
     public enum PowerUpType
     {
-        Speed,
+        Random,
         Bomb,
         Kick,
         Range,
@@ -64,7 +64,7 @@ public class PowerUp {
     public void pickUpItem(PowerUpType type)
     {
         switch (type) {
-            case Speed:
+            case Random:
                 player.powerUpSpeedCount ++;
                 break;
             case Bomb:
@@ -81,5 +81,4 @@ public class PowerUp {
                 break;
         } 
     }
-
 }

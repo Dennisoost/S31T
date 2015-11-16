@@ -74,9 +74,7 @@ public class Pyromancer extends BasicGame {
     
     public Pyromancer(String title) {
         super(title);
-    }
-    
- 
+    } 
 
     @Override
     public void render(GameContainer gc, Graphics g) throws SlickException {
@@ -84,27 +82,23 @@ public class Pyromancer extends BasicGame {
 
         if(startAndDisplayFlag)
         { 
-                int seconds = gameDuration / 1000;
-                Date date = new Date(gameDuration);
-                SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
-                String time = sdf.format(date);
-                g.drawString(time, 700, 250);
-               
+            int seconds = gameDuration / 1000;
+            Date date = new Date(gameDuration);
+            SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+            String time = sdf.format(date);
+            g.drawString(time, 700, 250); 
             //TEKEN FLAG + TIMER.
         }
-
      
         ArrayList<Box> toSpawnBoxes = gameMap.getSpawnBoxes();
         for(int b = 0; b < toSpawnBoxes.size(); b++)
         {
             g.drawImage(toSpawnBoxes.get(b).getImage(),  (toSpawnBoxes.get(b).xyPoint.getX()* 32) + 5, (toSpawnBoxes.get(b).xyPoint.getY() * 32) + 5);
         }
-        
         for(Player pla : players)
         {
             pla.draw(g);
         }
-   
         if(powerUps.size() > 0)
         {
             for(PowerUp pw : powerUps)
@@ -115,7 +109,6 @@ public class Pyromancer extends BasicGame {
                 }
             }
         }
-
         if(shouldBoom)
         {
             shouldBoom = false;
@@ -124,11 +117,6 @@ public class Pyromancer extends BasicGame {
         g.setBackground(Color.darkGray);
         g.setFont(titleScoreFont);
         g.drawString("SCORE", 730, 25);
-
-      
-    
-
-       
         
         for (int i = 1; i < 5; i++) {
             String number = String.valueOf(i) + ":";
@@ -136,21 +124,16 @@ public class Pyromancer extends BasicGame {
             g.drawString(number, 670, yVal);
             numberHeights.add(yVal);
         }
-
-
         for (Player p : players) {
             gc.getGraphics().drawString(players.get(players.indexOf(p)).name, 695, numberHeights.get(players.indexOf(p)));
             gc.getGraphics().drawString(String.valueOf(players.get(players.indexOf(p)).score), 810, numberHeights.get(players.indexOf(p)));
         }
-             if(gameMap.getFlag().isPickedUp)
-         {
-             startAndDisplayFlag = true;
-         }
-             
+        if(gameMap.getFlag().isPickedUp)
+        {
+            startAndDisplayFlag = true;
+        }      
     }
-    
-  
-    
+
     public Animation setAnimations() throws SlickException {
 
         Animation anim = new Animation();
@@ -171,17 +154,13 @@ public class Pyromancer extends BasicGame {
         if(startAndDisplayFlag && gameMap.getFlag().isPickedUp)
         {           
             System.out.println("Current delta");
-
-               if(readyToAddScore(i))
-               {
-    
-                   
-                   for(Player plyr : players)
-                   {
-                       plyr.score += flagTime * 10;
-                   }
-               }
-                
+            if(readyToAddScore(i))
+            { 
+                for(Player plyr : players)
+                {
+                   plyr.score += flagTime * 10;
+                } 
+            }      
         }
         else
         {
@@ -191,21 +170,16 @@ public class Pyromancer extends BasicGame {
         {
             bombTime += i;
         }
-        
-        
         if(gameMap.getFlag().isPickedUpOnce)
         {
             gameDuration -= i;
         }
-        
         time++;
         if (time > 6) {
            
             player1.move(gc, gameMap, false);
             player2.move(gc, gameMap, false);
             time = 0;
-
-      
             
             if(gc.getInput().isKeyPressed(Input.KEY_ESCAPE))
             {
@@ -216,33 +190,33 @@ public class Pyromancer extends BasicGame {
     
     public boolean readyToAddScore(int delta)
     {
-            if(secondTime < 1000)
-            {
-                secondTime += delta;
-                return false;
-            }
-            else
-            {
-                secondTime = 0;
-                flagTime += 1;
-                return true;
-            }   
+        if(secondTime < 1000)
+        {
+            secondTime += delta;
+            return false;
+        }
+        else
+        {
+            secondTime = 0;
+            flagTime += 1;
+            return true;
+        }   
     }
        
-     public boolean sortPlayersPerSecond(int delta)
+    public boolean sortPlayersPerSecond(int delta)
     {
-            if(oneSecondTime < 1000)
-            {
-                oneSecondTime += delta;
-                return false;
-            }
-            else
-            {
-                oneSecondTime = 0;
-                Collections.sort(players, new Player());
-                Collections.reverse(players);
-                return true;
-            }   
+        if(oneSecondTime < 1000)
+        {
+            oneSecondTime += delta;
+            return false;
+        }
+        else
+        {
+            oneSecondTime = 0;
+            Collections.sort(players, new Player());
+            Collections.reverse(players);
+            return true;
+        }   
     }
     
     public void drawPowerUps(Player p, Graphics g) {
@@ -268,8 +242,6 @@ public class Pyromancer extends BasicGame {
             g.drawImage(powerUpSpeed, 670, 450);
             g.drawString(String.valueOf(p.powerUpSpeedCount), 710, 460);
         }
-      
-   
     }
 
     @Override
@@ -290,9 +262,9 @@ public class Pyromancer extends BasicGame {
         
         powerUps = new ArrayList<>();
         
-        PowerUp pwSpeed = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
-        PowerUp pwSpeed2 = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
-        PowerUp pwSpeed3 = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
+        PowerUp pwRandom = new PowerUp(PowerUp.PowerUpType.Random, powerUpSpeed);
+        PowerUp pwRandom2 = new PowerUp(PowerUp.PowerUpType.Random, powerUpSpeed);
+        PowerUp pwRandom3 = new PowerUp(PowerUp.PowerUpType.Random, powerUpSpeed);
         
         PowerUp pwBomb = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
         PowerUp pwBomb2 = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
@@ -309,7 +281,7 @@ public class Pyromancer extends BasicGame {
         PowerUp pwFlag = new PowerUp(PowerUp.PowerUpType.Flag, flag);
         
         PowerUp[] allPowerUps = new PowerUp[]{
-        pwSpeed, pwSpeed2, pwSpeed3, pwBomb, pwBomb2, pwBomb3, pwKick, pwKick2, pwKick3, pwRange, pwRange2, pwRange3, pwFlag};
+        pwRandom, pwRandom2, pwRandom3, pwBomb, pwBomb2, pwBomb3, pwKick, pwKick2, pwKick3, pwRange, pwRange2, pwRange3, pwFlag};
         
         powerUps.addAll(Arrays.asList(allPowerUps));
                 
@@ -326,8 +298,7 @@ public class Pyromancer extends BasicGame {
         player2 = new Player(13, 13, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
         player3 = new Player();
         player4 = new Player();
-
-                
+   
         player1.name = "Queenie";
         player2.name = "Sjoerd";
         player3.name = "Dennis";
@@ -349,7 +320,6 @@ public class Pyromancer extends BasicGame {
         player2.usedControls.put("left", Input.KEY_A);
         player2.usedControls.put("right", Input.KEY_D);
         player2.usedControls.put("placebomb", Input.KEY_LCONTROL);
-       
 
         players.add(player1);
         players.add(player2);
@@ -372,8 +342,6 @@ public class Pyromancer extends BasicGame {
         stopFont = new TrueTypeFont(awtStopFont, false);
         titleScoreFont = new TrueTypeFont(awtFont, false);
         scoreFont = new TrueTypeFont(awtScoreFont, false);
-        
-   
     }
 
     /**
@@ -388,9 +356,6 @@ public class Pyromancer extends BasicGame {
         } catch (SlickException ex) {
             ex.printStackTrace();
         }
-        
-   
         // TODO code application logic here
     }
-
 }
