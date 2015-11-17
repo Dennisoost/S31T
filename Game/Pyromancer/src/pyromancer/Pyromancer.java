@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.collections.FXCollections;
-import org.lwjgl.util.Point;
+import java.util.Dictionary;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -52,7 +52,8 @@ public class Pyromancer extends BasicGame {
 
     //OTHER
     private ArrayList<PowerUp> powerUps;
-    private int x, y, time, flagTime, lastflagTime, gameDuration, gameDurationSeconds,bombTime;
+    private int x, y, time, flagTime, gameDuration, gameDurationSeconds,bombTime;
+    public long secondTime, oneSecondTime;
     private String flagCounter = "";
     public String timeDuration;
     private Image powerUpExtra, powerUpSpeed,powerUpRange,powerUpKick, flag, bombImage;
@@ -65,136 +66,57 @@ public class Pyromancer extends BasicGame {
     int respawnStart = 0;
     int respawnEnd = 3000;
     
+    boolean movingBomb = false;
+    boolean startAndDisplayFlag = false;
+    boolean shouldStartScores = false;
+    float t = 0;
+    Potion movingPot;
+    
     public Pyromancer(String title) {
         super(title);
-    }
+    } 
 
     @Override
     public void render(GameContainer gc, Graphics g) throws SlickException {
         tiledMap.render(5, 5);
 
-        int flagSecondTime = flagTime / 1000;
-        int flagHalfSecondTime = flagTime / 500;
+        if(startAndDisplayFlag)
+        { 
+            int seconds = gameDuration / 1000;
+            Date date = new Date(gameDuration);
+            SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+            String time = sdf.format(date);
+            g.drawString(time, 700, 250); 
+            //TEKEN FLAG + TIMER.
+        }
      
-        int bombImgTime = flagSecondTime * 3; 
         ArrayList<Box> toSpawnBoxes = gameMap.getSpawnBoxes();
         for(int b = 0; b < toSpawnBoxes.size(); b++)
         {
             g.drawImage(toSpawnBoxes.get(b).getImage(),  (toSpawnBoxes.get(b).xyPoint.getX()* 32) + 5, (toSpawnBoxes.get(b).xyPoint.getY() * 32) + 5);
         }
-        
-        if(player1.placedBombs.size() > 0 )
+        for(Player pla : players)
         {
-            for(Potion potion :  player1.placedBombs)
+            pla.draw(g);
+        }
+        if(powerUps.size() > 0)
+        {
+            for(PowerUp pw : powerUps)
             {
-                if (!potion.hasExploded) 
+                if(!pw.isPickedUp && pw.isDropped)
                 {
-                    g.drawImage(potion.getBombImage(), (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
-                } 
-                else 
-                {
-                    System.out.println("waarde van anim: " + potion.getExplodeAnimation());
-                    potion.getExplodeAnimation().start();
-                    
-                    System.out.println("print values before entering in order down/up/left/right:" + potion.downRange + "," + potion.upRange  + "," + potion.leftRange  + "," + potion.rightRange);
-                    int posX = potion.getLocation().getX();
-                    int posY = potion.getLocation().getY();
-                    if (potion.downRange != 0)
-                    {
-                        for(int d = 0; d < potion.downRange; d++)
-                        {                          
-                            g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);   
-                            if(potion.checkForPlayer(player1, new Point(posX, posY +d)))
-                            {
-                                player1.hasBeenKilled = true;
-                                player1.x = 1;
-                                player1.y = 1;
-                            }
-                        }
-                    }
-                    if (potion.upRange != 0) 
-                    {
-                        for(int u = 0; u < potion.upRange; u++)
-                        {                          
-                            g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);  
-                            if(potion.checkForPlayer(player1, new Point(posX, posY - u)))
-                            {
-                                player1.hasBeenKilled = true;
-                                player1.x = 1;
-                                player1.y = 1;
-                            }
-                        }     
-                    }
-                    
-                    if (potion.leftRange != 0) 
-                    {
-                        for(int l = 0; l < potion.leftRange; l++)
-                        {                          
-                            g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);            
-                            if(potion.checkForPlayer(player1, new Point(posX - l, posY)))
-                            {
-                                player1.hasBeenKilled = true;
-                                player1.x = 1;
-                                player1.y = 1;
-                            }
-                        }        
-                    }
-                    
-                    if (potion.rightRange != 0) 
-                    {
-                        for(int r = 0; r < potion.rightRange; r++)
-                        {                          
-                            g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);                 
-                            if(potion.checkForPlayer(player1, new Point(posX + r, posY)))
-                            {
-                                player1.hasBeenKilled = true;
-                                player1.x = 1;
-                                player1.y = 1;
-                            }
-                        }        
-                    }
-                    Timer t = new Timer();
-                    t.schedule(new WaitforAnim(potion), 1500);    
+                    g.drawImage(pw.itemImage, ((pw.location.getX() * 32) + 5), ((pw.location.getY() * 32) + 5));
                 }
             }
         }
-     
-        if(powerUps.size() > 0)
-            {
-                for(PowerUp pw : powerUps)
-                {
-                    if(!pw.isPickedUp && pw.isDropped)
-                    {
-                        System.out.println("image: " + pw.itemImage.toString());
-                        g.drawImage(pw.itemImage, ((pw.location.getX() * 32) + 5), ((pw.location.getY() * 32) + 5));
-                    }
-                }
-            }
-        
         if(shouldBoom)
         {
             shouldBoom = false;
         }
         
-        g.drawAnimation(player1.getCurrentSprite(), (player1.x * 32) + 5, (player1.y * 32) + 5);
         g.setBackground(Color.darkGray);
-        g.drawImage(flag, 775, 350);
         g.setFont(titleScoreFont);
         g.drawString("SCORE", 730, 25);
-
-        int seconds = gameDuration / 1000;
-        Date date = new Date(gameDuration);
-        SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
-        String time = sdf.format(date);
-        if (seconds == 0) {
-            g.setFont(stopFont);
-            g.setColor(Color.red);
-            g.drawString("TIMES UP!", 710, 200);
-        }
-
-        g.setFont(scoreFont);
-        drawPowerUps(players.get(players.indexOf(player1)), g);
-        g.drawString("Time: " + time, 710, 250);
         
         for (int i = 1; i < 5; i++) {
             String number = String.valueOf(i) + ":";
@@ -202,28 +124,16 @@ public class Pyromancer extends BasicGame {
             g.drawString(number, 670, yVal);
             numberHeights.add(yVal);
         }
-        
-        g.drawString(String.valueOf(flagSecondTime), 810, 360);
-
-       for (Player p : players) {
-            gc.getGraphics().drawString(players.get(players.indexOf(p)).name, 685, numberHeights.get(players.indexOf(p)));
+        for (Player p : players) {
+            gc.getGraphics().drawString(players.get(players.indexOf(p)).name, 695, numberHeights.get(players.indexOf(p)));
             gc.getGraphics().drawString(String.valueOf(players.get(players.indexOf(p)).score), 810, numberHeights.get(players.indexOf(p)));
         }
-            
-//        if (flagHalfSecondTime != lastflagTime) {
-//
-//            Random rndm = new Random();
-//            players.get(players.indexOf(player1)).score += rndm.nextInt(50) + 1;
-//      
-//            for (int isflagHolder = 0; isflagHolder < 4; isflagHolder++) {
-//                if (players.get(isflagHolder).hasFlag) {
-//                    players.get(isflagHolder).score += (0.5 * flagSecondTime);
-//                }
-//            }
-//        }
-       lastflagTime = flagHalfSecondTime;
+        if(gameMap.getFlag().isPickedUp)
+        {
+            startAndDisplayFlag = true;
+        }      
     }
-    
+
     public Animation setAnimations() throws SlickException {
 
         Animation anim = new Animation();
@@ -233,80 +143,101 @@ public class Pyromancer extends BasicGame {
         anim.addFrame(sprites.getSprite(10, 0), 300);
         anim.addFrame(sprites.getSprite(11, 0), 300);
         anim.addFrame(sprites.getSprite(11, 1), 300);
-            
-        return anim;
+  
+        return anim; 
     }
- 
+    
     @Override
     public void update(GameContainer gc, int i) throws SlickException {
         int wallLayer = tiledMap.getLayerIndex("Walls");
-
-          flagTime += i;
-          if(shouldBoom)
-          {
-                  bombTime += i;
-          }
-          if(player1.hasBeenKilled)
-          {
-              respawnStart++;
-          }
-          
-          if(respawnStart >= respawnEnd)
-          {
-              player1.hasBeenKilled = false;
-              respawnStart = 0;
-          }
-        int flagHalfSecondTime = flagTime / 500;
-
-        if (flagHalfSecondTime != lastflagTime) {
-            Collections.sort(players, new Player());
-            Collections.reverse(players);
+        
+        if(!shouldStartScores)
+        {
+            for(Player plyr : players)
+            {
+                 if(plyr.score > 0)
+                    {
+                        shouldStartScores = true;
+                    }
+            }
         }
-        
-        gameDuration -= i;
-        
+        else
+        {
+            sortPlayersPerSecond(i);
+        }
+
+        if(startAndDisplayFlag && gameMap.getFlag().isPickedUp)
+        {           
+            if(readyToAddScore(i))
+            { 
+                for(Player plyr : players)
+                {
+                   
+                    if(plyr.hasFlag)
+                    {
+                        plyr.score += flagTime * 10;
+                    }
+                } 
+            }      
+        }
+        else
+        {
+            flagTime = 0;
+        }
+        if(shouldBoom)
+        {
+            bombTime += i;
+        }
+        if(gameMap.getFlag().isPickedUpOnce)
+        {
+            gameDuration -= i;
+        }
         time++;
         if (time > 6) {
-            if (gc.getInput().isKeyDown(Input.KEY_RIGHT)) {
-                player1.setCurrentSprite(player1.getRight());
-               
-                if (tiledMap.getTileId(player1.x + 1, player1.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x + 1, player1.y)) && !isBombThere(new Point(player1.x + 1, player1.y))) {
-                    player1.x++;
-                }
-            }
-            else if (gc.getInput().isKeyDown(Input.KEY_LEFT)) {
-                player1.setCurrentSprite(player1.getLeft());
-
-                if (tiledMap.getTileId(player1.x - 1, player1.y, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x - 1, player1.y))  && !isBombThere(new Point(player1.x - 1, player1.y))) {
-                    player1.x--;
-                }
-            }
-            else  if (gc.getInput().isKeyDown(Input.KEY_UP)) {
-                player1.setCurrentSprite(player1.getUp());
-
-                if (tiledMap.getTileId(player1.x, player1.y - 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x, player1.y - 1))  && !isBombThere(new Point(player1.x, player1.y -1))) {
-                    player1.y--;
-                }
-            }
-            else if (gc.getInput().isKeyDown(Input.KEY_DOWN)) {
-                player1.setCurrentSprite(player1.getDown());
-
-                if (tiledMap.getTileId(player1.x, player1.y + 1, wallLayer) == 0 && !gameMap.isBoxThere(new Point(player1.x, player1.y + 1)) && !isBombThere(new Point(player1.x, player1.y + 1))) {
-                    player1.y++;
-                }
-            }
+           
+            player1.move(gc, gameMap, false);
+            player2.move(gc, gameMap, false);
             time = 0;
-
-            if(gc.getInput().isKeyPressed(Input.KEY_SPACE))
+            
+            if(gc.getInput().isKeyPressed(Input.KEY_ESCAPE))
             {
-                 player1.gMap = gameMap;
-                player1.placeBomb();
-                System.out.println("pl placeC:"  + player1.placedBombs.size());
+                app.exit();
             }
         }
     }
     
-      public void drawPowerUps(Player p, Graphics g) {
+    public boolean readyToAddScore(int delta)
+    {
+        if(secondTime < 1000)
+        {
+            secondTime += delta;
+            return false;
+        }
+        else
+        {
+            secondTime = 0;
+            flagTime += 1;
+            return true;
+        }   
+    }
+       
+    public boolean sortPlayersPerSecond(int delta)
+    {
+        if(oneSecondTime < 1000)
+        {
+            oneSecondTime += delta;
+            return false;
+        }
+        else
+        {
+            oneSecondTime = 0;
+            Collections.sort(players, new Player());
+            Collections.reverse(players);
+            return true;
+        }   
+    }
+    
+    public void drawPowerUps(Player p, Graphics g) {
 
         g.setFont(scoreFont);
 
@@ -315,9 +246,9 @@ public class Pyromancer extends BasicGame {
             g.drawString(String.valueOf(p.powerUpBombCount), 710, 310);
         }
 
-        if (p.powerUpKickCount > 0) {
+        if (p.powerUpCanKick = true) {
             g.drawImage(powerUpKick, 670, 350);
-            g.drawString(String.valueOf(p.powerUpKickCount), 710, 360);
+            g.drawString("Active", 710, 360);
         }
         
         if (p.powerUpRangeCount > 0) {
@@ -349,9 +280,9 @@ public class Pyromancer extends BasicGame {
         
         powerUps = new ArrayList<>();
         
-        PowerUp pwSpeed = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
-        PowerUp pwSpeed2 = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
-        PowerUp pwSpeed3 = new PowerUp(PowerUp.PowerUpType.Speed, powerUpSpeed);
+        PowerUp pwRandom = new PowerUp(PowerUp.PowerUpType.Random, powerUpSpeed);
+        PowerUp pwRandom2 = new PowerUp(PowerUp.PowerUpType.Random, powerUpSpeed);
+        PowerUp pwRandom3 = new PowerUp(PowerUp.PowerUpType.Random, powerUpSpeed);
         
         PowerUp pwBomb = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
         PowerUp pwBomb2 = new PowerUp(PowerUp.PowerUpType.Bomb, powerUpExtra);
@@ -368,32 +299,24 @@ public class Pyromancer extends BasicGame {
         PowerUp pwFlag = new PowerUp(PowerUp.PowerUpType.Flag, flag);
         
         PowerUp[] allPowerUps = new PowerUp[]{
-        pwSpeed, pwSpeed2, pwSpeed3, pwBomb, pwBomb2, pwBomb3, pwKick, pwKick2, pwKick3, pwRange, pwRange2, pwRange3, pwFlag};
+        pwRandom, pwRandom2, pwRandom3, pwBomb, pwBomb2, pwBomb3, pwKick, pwKick2, pwKick3, pwRange, pwRange2, pwRange3, pwFlag};
         
         powerUps.addAll(Arrays.asList(allPowerUps));
                 
         testAnim =  setAnimations();
         gameDurationSeconds = 600;
         gameDuration = 1000 * gameDurationSeconds;
-        lastflagTime = 0;
 
         gameMap = new GameMap(new Image("Images/box.png"), new Image("Images/gameflag.png"), powerUps);
         tiledMap = gameMap.getTiledMap();
         players = new ArrayList<>();
         numberHeights = new ArrayList<>();
         
-        player1 = new Player(37, 37, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
-        player2 = new Player();
+        player1 = new Player(1, 1, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
+        player2 = new Player(18, 13, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
         player3 = new Player();
         player4 = new Player();
-        
-        player1.setCurrentSprite(player1.getRight());
-        x = 1;
-        y = 1;
-
-        player1.x = x;
-        player1.y = y;
-                
+   
         player1.name = "Queenie";
         player2.name = "Sjoerd";
         player3.name = "Dennis";
@@ -404,14 +327,30 @@ public class Pyromancer extends BasicGame {
         player3.score = 0;
         player4.score = 0;
         
-        player3.hasFlag = true;
-        player1.powerUpBombCount = 1;
-        player1.powerUpKickCount = 1;
-        player1.powerUpRangeCount = 4;
-        player1.powerUpSpeedCount = 1;
-        
+        player1.usedControls.put("up", Input.KEY_UP);
+        player1.usedControls.put("down", Input.KEY_DOWN);
+        player1.usedControls.put("left", Input.KEY_LEFT);
+        player1.usedControls.put("right", Input.KEY_RIGHT);
+        player1.usedControls.put("placebomb", Input.KEY_SPACE);
+       
+        player2.usedControls.put("up", Input.KEY_W);
+        player2.usedControls.put("down", Input.KEY_S);
+        player2.usedControls.put("left", Input.KEY_A);
+        player2.usedControls.put("right", Input.KEY_D);
+        player2.usedControls.put("placebomb", Input.KEY_LCONTROL);
+
         players.add(player1);
-    
+        players.add(player2);
+        
+        for(Player pl: players)
+        {
+            if(pl.getCurrentSprite() == null)
+            {
+                pl.setCurrentSprite(pl.getRight());
+            }
+        }
+        
+        gameMap.players = players;
         time = 0;
         
         Font awtFont = new Font("Neou", Font.BOLD, 24);
@@ -420,15 +359,14 @@ public class Pyromancer extends BasicGame {
 
         stopFont = new TrueTypeFont(awtStopFont, false);
         titleScoreFont = new TrueTypeFont(awtFont, false);
-        scoreFont = new TrueTypeFont(awtScoreFont, false); 
+        scoreFont = new TrueTypeFont(awtScoreFont, false);
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        try 
-        {
+        try {
             AppGameContainer appgc;
             appgc = new AppGameContainer(new Pyromancer("Pyromancer!"));
             appgc.setDisplayMode(900, 500, false);
@@ -437,41 +375,5 @@ public class Pyromancer extends BasicGame {
             ex.printStackTrace();
         }
         // TODO code application logic here
-    }
-    
-    public class WaitforAnim extends TimerTask {
- 
-        Potion p; 
-       
-        public WaitforAnim(Potion po)
-        {
-            this.p = po;
-        }
-       
-        @Override
-        public void run() 
-        {
-            completeTask();
-        }
-        
-        private void completeTask() 
-        {
-            shouldBoom = false;
-            p.getExplodeAnimation().stop();
-            player1.placedBombs.remove(p);
-        }
-    }
-    
-    public boolean isBombThere(Point p)
-    {
-        for(Potion pot : player1.placedBombs)
-        {
-            if(p.equals(pot.getLocation()))
-            {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }

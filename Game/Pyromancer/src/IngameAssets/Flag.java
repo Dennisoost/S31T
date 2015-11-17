@@ -15,22 +15,23 @@ import org.newdawn.slick.Image;
  */
 public class Flag 
 {
-
     private boolean isInBox; 
     private Box hidingBox; 
     private Point location;
     private boolean pickedUp; 
-    private Image flagImage; 
+    public boolean firstPickUp = false;
 
+    private Image flagImage; 
 
     public Flag(Box hidingBox, Point location, Image flagImage) {
         this.hidingBox = hidingBox;
         this.location = location;
         this.flagImage = flagImage;
         this.pickedUp = false;
+        this.firstPickUp = false;
     }
     
-       public boolean isIsInBox() {
+    public boolean isIsInBox() {
         return isInBox;
     }
 
@@ -45,7 +46,6 @@ public class Flag
     public void setPickedUp(boolean pickedUp) {
         this.pickedUp = pickedUp;
     }
-    
  
     public Point getLocation() {
         return location;

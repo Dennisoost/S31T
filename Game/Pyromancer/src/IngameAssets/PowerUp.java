@@ -17,7 +17,7 @@ public class PowerUp {
     
     public enum PowerUpType
     {
-        Speed,
+        Random,
         Bomb,
         Kick,
         Range,
@@ -28,6 +28,7 @@ public class PowerUp {
     public Point location;
     public Image itemImage;
     public boolean isPickedUp; 
+    public boolean isPickedUpOnce;
     public Player player;
     public boolean isDropped;
     
@@ -37,6 +38,7 @@ public class PowerUp {
         this.itemImage = itemImage;
         this.isPickedUp = false;
         this.isDropped = false;
+        this.isPickedUpOnce = false;
     }
 
     public PowerUpType getType() {
@@ -62,7 +64,7 @@ public class PowerUp {
     public void pickUpItem(PowerUpType type)
     {
         switch (type) {
-            case Speed:
+            case Random:
                 player.powerUpSpeedCount ++;
                 break;
             case Bomb:
@@ -78,6 +80,5 @@ public class PowerUp {
                 player.hasFlag = true;
                 break;
         } 
-
     }
 }

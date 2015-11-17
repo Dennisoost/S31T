@@ -15,20 +15,18 @@ import org.newdawn.slick.geom.Rectangle;
  */
 public class Box 
 {
+    private float width, height; 
+    private Point location; 
+    private Image image; 
+    private boolean hasPowerUp = false;
+    private boolean containsFlag = false; 
 
-       private float width, height; 
-       private Point location; 
-       private Image image; 
-       private boolean hasPowerUp = false;
-       private boolean containsFlag = false; 
+    public PowerUp hiddenPowerUp;
+    private Rectangle bounds;
+    private int boxID;
 
-       public PowerUp hiddenPowerUp;
-       private Rectangle bounds;
-       private int boxID;
-
-       public Point xyPoint;
+    public Point xyPoint;
  
-
     public Box(){}
 
     public Box(float width, float height, Point p, Image image) {
@@ -38,8 +36,7 @@ public class Box
         this.xyPoint = p;
         this.bounds = new Rectangle(this.xyPoint.getX(), this.xyPoint.getY(), this.width, this.height);
     }
-    
-    
+     
     public float getWidth() {
         return width;
     }
