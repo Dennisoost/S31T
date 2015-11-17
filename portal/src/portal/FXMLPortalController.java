@@ -23,6 +23,7 @@ import Chat.ClientMessenger;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
@@ -76,11 +77,13 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @FXML
     private ImageView imgGame311;
     @FXML
-    private TableView<GameRoom> tableViewGame;
+    private TableView<Gameroom2> tableViewGame;
     @FXML
-    private TableColumn<GameRoom, String> tcGameroom;
+    private TableColumn<Gameroom2, String> tcGameroom;
     @FXML
-    private TableColumn<GameRoom, String> tcPlayer;
+    private TableColumn<Gameroom2, String> tcPlayer;
+
+    private final ObservableList<Gameroom2> data = FXCollections.observableArrayList(new Gameroom2("hello"));
 
     /**
      * Initializes the controller class.
@@ -95,20 +98,36 @@ public class FXMLPortalController implements Initializable, IChatClient {
         cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
         cm.startServer();
         
-        //tcGameroom.setCellValueFactory(new PropertyValueFactory("game"));
-        //tcPlayer.setCellValueFactory(new PropertyValueFactory("playercount"));
+        tcPlayer.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("player"));
+        tcGameroom.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("game"));
+        tableViewGame.setItems(data);
+
     }
 
     @FXML
     private void joinGame(MouseEvent event) {
+        Gameroom2 gm = tableViewGame.getSelectionModel().getSelectedItem();
+        
+        if(!gm.joinRoom()){
+              Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Information Alert");
+            String s = "Game is full!";
+            alert.setContentText(s);
+            alert.show();
+        }
+        tableViewGame.refresh();
     }
 
     @FXML
     private void createGame(MouseEvent event) throws IOException, InterruptedException {
-        grc = grc + 1;
+       /* grc = grc + 1;
         GameRoom gr = new GameRoom("Gameroom" + Integer.toString(grc));
         gameroomList.add(gr);
-        updateGameList();
+        updateGameList();*/
+
+        data.add(new Gameroom2(User.username + "'s room"));
+        tableViewGame.setItems(data);
 
         /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
         
@@ -166,7 +185,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
 
     @Override
     public void showMessage(String message) {
-        taMessages.appendText(message + "\n");
+        taMessages.appendText(message);
     }
 
     @Override
@@ -192,7 +211,6 @@ public class FXMLPortalController implements Initializable, IChatClient {
     }
 
     private void updateGameList() {
-
 
         List<String> gamenameList = new ArrayList<>();
         for (GameRoom gr : gameroomList) {

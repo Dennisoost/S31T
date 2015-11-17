@@ -40,7 +40,7 @@
       <TextArea fx:id="taMessages" layoutX="123.0" layoutY="260.0" prefHeight="242.0" prefWidth="520.0" />
       <TextField fx:id="tbMessage" layoutX="124.0" layoutY="510.0" prefHeight="25.0" prefWidth="468.0" />
       <Button fx:id="btnSend" layoutX="600.0" layoutY="509.0" mnemonicParsing="false" onAction="#sendMessage" text="Send" />
-      <ListView fx:id="taGames" layoutX="124.0" layoutY="46.0" prefHeight="203.0" prefWidth="407.0" />
+      <ListView fx:id="taGames" layoutX="444.0" layoutY="16.0" prefHeight="25.0" prefWidth="54.0" />
       <Label fx:id="lblGame" layoutX="209.0" layoutY="20.0" text="Bomberman 1" />
       <ImageView fx:id="imgGame31" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="347.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -52,7 +52,7 @@
             <Image url="@bomberman_by_nooa-d39twdr.jpg" />
          </image>
       </ImageView>
-      <TableView fx:id="tableViewGame" layoutX="298.0" layoutY="14.0" prefHeight="29.0" prefWidth="85.0" visible="false">
+      <TableView fx:id="tableViewGame" layoutX="124.0" layoutY="44.0" prefHeight="203.0" prefWidth="401.0">
         <columns>
           <TableColumn fx:id="tcGameroom" prefWidth="324.0" text="Gameroom" />
           <TableColumn fx:id="tcPlayer" minWidth="0.0" prefWidth="75.0" text="Players" />

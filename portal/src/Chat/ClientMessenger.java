@@ -48,7 +48,7 @@ public class ClientMessenger {
             return false;
         }
 
-        String msg = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
+        String msg = "Welcome to Pyromancer! " + socket.getInetAddress() + ":" + socket.getPort() + "\n";
         display(msg);
 
         /* Creating both Data Stream */

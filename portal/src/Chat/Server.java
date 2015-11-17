@@ -116,7 +116,7 @@ public class Server {
     private synchronized void broadcast(String message) {
         // add HH:mm:ss and \n to the message
         String time = sdf.format(new Date());
-        String messageLf = time + " " + message + "\n";
+        String messageLf = time + " " + message + "\r\n";
         // display message on console or GUI
 
         System.out.print(messageLf);

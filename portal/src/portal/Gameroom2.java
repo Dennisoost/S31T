@@ -14,22 +14,31 @@ import javafx.beans.property.SimpleStringProperty;
  * @author Dennis
  */
 public class Gameroom2 {
-    
+
     private final SimpleStringProperty game;
-    private final SimpleIntegerProperty playercount;
-    
-    
-    public Gameroom2(String game)
-    {
+    private SimpleStringProperty player;
+    private int players;
+
+    public Gameroom2(String game) {
         this.game = new SimpleStringProperty(game);
-        playercount = new SimpleIntegerProperty(1);
+        players = 1;
+        this.player = new SimpleStringProperty(Integer.toString(players) + "/4");
     }
-    public String getGame()
-    {
+
+    public String getGame() {
         return this.game.get();
     }
-    public int getPlayers()
-    {
-        return this.playercount.get();
+
+    public String getPlayer() {
+        return this.player.get();
+    }
+
+    public boolean joinRoom() {
+        if (players < 4) {
+            players++;
+            player = new SimpleStringProperty(Integer.toString(players) + "/4");
+            return true;
+        }
+        return false;
     }
 }
