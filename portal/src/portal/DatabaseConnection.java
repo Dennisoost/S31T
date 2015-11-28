@@ -8,8 +8,11 @@ package portal;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -173,5 +176,35 @@ public class DatabaseConnection {
             conn.close();
         }
         return false;
+    }
+    
+    public ArrayList<String> getLeaderboard() throws ClassNotFoundException, SQLException{
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+            stmt = (Statement) conn.createStatement();
+            String getScoreQuery = "SELECT USERNAME, SCORE FROM USER ORDER BY SCORE DESC";
+            ResultSet rs = stmt.executeQuery(getScoreQuery);
+            ArrayList<String> data = new ArrayList<>();
+            while(rs.next()){
+                ArrayList<String> row = new ArrayList<>();
+                for(int i=1 ; i<=rs.getMetaData().getColumnCount(); i++){
+                    //Iterate Column
+                    row.add(rs.getString(i));
+                }
+                data.addAll(row);
+            }
+            return data;
+        } 
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseConnection.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            //STEP 6: Clean-up environment
+            stmt.close();
+            conn.close();
+        }
+        return null;
     }
 }

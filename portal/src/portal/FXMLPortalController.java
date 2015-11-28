@@ -146,6 +146,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @FXML
     private void showLeaderboard(MouseEvent event) {
         //popup leaderboard
+        showStage("FXMLLeaderboards.fxml");
     }
 
     @FXML

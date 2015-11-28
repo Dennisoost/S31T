@@ -6,13 +6,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="portal.FXMLLeaderboardsController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="266.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portal.FXMLLeaderboardsController">
    <children>
-      <TableView fx:id="tvLeaderboards" layoutX="-1.0" prefHeight="400.0" prefWidth="600.0">
+      <TableView fx:id="tvLeaderboards" prefHeight="400.0" prefWidth="268.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="71.0" text="Rank" />
+          <TableColumn minWidth="0.0" prefWidth="108.0" text="Username" />
+          <TableColumn prefWidth="88.0" text="Score" />
         </columns>
       </TableView>
    </children>

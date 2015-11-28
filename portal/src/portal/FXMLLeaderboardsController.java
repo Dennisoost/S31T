@@ -13,21 +13,24 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
  * FXML Controller class
  *
  * @author Sjoerd
  */
+
 public class FXMLLeaderboardsController implements Initializable {
     @FXML
-    private TableView<String> tvLeaderboards;
+    private TableView<Row> tvLeaderboards;
 
     /**
      * Initializes the controller class.
@@ -36,9 +39,20 @@ public class FXMLLeaderboardsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         DatabaseConnection database = new DatabaseConnection();
-        tvLeaderboards.setEditable(true);
-        tvLeaderboards.getColumns().addAll(new TableColumn("Username"), new TableColumn("Score"));
-        ObservableList<String> data = null;
+        ArrayList<String> data = new ArrayList<>();
+        
+        tvLeaderboards.getColumns().get(0).setCellValueFactory(
+            new PropertyValueFactory<>("rank")
+        );
+        
+        tvLeaderboards.getColumns().get(1).setCellValueFactory(
+            new PropertyValueFactory<>("userName")
+        );
+        
+        tvLeaderboards.getColumns().get(2).setCellValueFactory(
+            new PropertyValueFactory<>("value")
+        );
+        
         try {
             data = database.getLeaderboard();
         } catch (ClassNotFoundException ex) {
@@ -46,11 +60,16 @@ public class FXMLLeaderboardsController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(FXMLLeaderboardsController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        for (String s : data) {
-           System.out.println(s); 
+        
+        if(data != null){
+            ObservableList<Row> observableList = FXCollections.observableArrayList();
+            int count = 1;
+            for (int i = 0; i < data.size(); i+=2) {
+                observableList.add(new Row(Integer.toString(count),data.get(i),data.get(i+1)));
+                count++;
+            }
+            tvLeaderboards.setItems(observableList);
         }
-        
-        
-    }    
-    
-}
+    }
+}    
+
