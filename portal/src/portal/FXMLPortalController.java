@@ -5,6 +5,7 @@
  */
 package portal;
 
+import shared.Gameroom2;
 import Chat.ChatMessage;
 import java.io.IOException;
 import java.net.URL;
@@ -20,7 +21,10 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import Chat.ClientMessenger;
+import java.rmi.RemoteException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -57,6 +61,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private int grc;
     private ClientMessenger cm;
     private ArrayList<GameRoom> gameroomList2;
+    private RMIClient rmiClient;
 
     @FXML
     private TextArea taMessages;
@@ -84,32 +89,55 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private TableColumn<Gameroom2, String> tcPlayer;
 
     private final ObservableList<Gameroom2> data = FXCollections.observableArrayList(new Gameroom2("hello"));
+    private ObservableList<Gameroom2> gameRoomList; 
+            /**
+             * Initializes the controller class.
+             */
 
-    /**
-     * Initializes the controller class.
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        // 
         gameroomList = new ArrayList<>();
-        gameroomList2 = new ArrayList<>();
         grc = 0;
+
         btnSend.setDefaultButton(true);
         cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
         cm.startServer();
-        
+
+        try {
+            rmiClient = new RMIClient("127.0.0.1", 1099);
+            if (rmiClient.getGamerooms() != null) {
+                gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
+            }
+        } catch (RemoteException ex) {
+            Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         tcPlayer.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("player"));
         tcGameroom.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("game"));
-        tableViewGame.setItems(data);
+        if (gameRoomList.size() == 0) {
+            try {
+                //gameRoomList.add(new Gameroom2("Testgame1"));
+                rmiClient.addGameRoom("testgame");
+                gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
+            } catch (RemoteException ex) {
+                Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+            tableViewGame.setItems(gameRoomList);
+        
 
+        //Get current gamerooms
+        // gameroomList = rmiClient.getGamerooms();
     }
 
     @FXML
     private void joinGame(MouseEvent event) {
         Gameroom2 gm = tableViewGame.getSelectionModel().getSelectedItem();
-        
-        if(!gm.joinRoom()){
-              Alert alert = new Alert(Alert.AlertType.WARNING);
+
+        if (!gm.joinRoom()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Warning");
             alert.setHeaderText("Information Alert");
             String s = "Game is full!";
@@ -121,7 +149,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
 
     @FXML
     private void createGame(MouseEvent event) throws IOException, InterruptedException {
-       /* grc = grc + 1;
+        /* grc = grc + 1;
         GameRoom gr = new GameRoom("Gameroom" + Integer.toString(grc));
         gameroomList.add(gr);
         updateGameList();*/
@@ -209,14 +237,5 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @FXML
     private void selectGame3(MouseEvent event) {
         lblGame.setText("Bomberman3");
-    }
-
-    private void updateGameList() {
-
-        List<String> gamenameList = new ArrayList<>();
-        for (GameRoom gr : gameroomList) {
-            gamenameList.add(gr.getGame());
-        }
-        taGames.setItems(FXCollections.observableArrayList(gamenameList));
     }
 }

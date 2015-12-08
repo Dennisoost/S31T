@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package portal;
+package shared;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,7 +14,7 @@ import javafx.beans.property.SimpleStringProperty;
  *
  * @author Dennis
  */
-public class Gameroom2 {
+public class Gameroom2 implements Serializable{
 
     private final SimpleStringProperty game;
     private SimpleStringProperty player;
