@@ -5,6 +5,7 @@
  */
 package IngameAssets;
 
+import java.io.Serializable;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Rectangle;
@@ -13,17 +14,17 @@ import org.newdawn.slick.geom.Rectangle;
  *
  * @author TimO
  */
-public class Box 
+public class Box implements Serializable
 {
-    private float width, height; 
-    private Point location; 
-    private Image image; 
-    private boolean hasPowerUp = false;
-    private boolean containsFlag = false; 
+    private transient float width, height; 
+    private transient Point location; 
+    private transient Image image; 
+    private transient boolean hasPowerUp = false;
+    private transient boolean containsFlag = false; 
 
-    public PowerUp hiddenPowerUp;
-    private Rectangle bounds;
-    private int boxID;
+    public transient PowerUp hiddenPowerUp;
+    private transient Rectangle bounds;
+    private transient int boxID;
 
     public Point xyPoint;
  

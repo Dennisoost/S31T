@@ -8,6 +8,7 @@ package IngameAssets;
 import GameAssets.GameMap;
 import GameAssets.Player;
 import com.sun.deploy.uitoolkit.impl.fx.ui.FXUIFactory;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,26 +25,35 @@ import org.newdawn.slick.tiled.TiledMap;
  *
  * @author TimO
  */
-public class Potion implements Runnable {
+public class Potion implements Runnable, Serializable {
 
-    private Sound explosionSound;
+    private transient Sound explosionSound;
     public boolean hasExploded = false;
     public boolean canCountDown;
 
-    private Animation explodeAnimation;
+    private transient Animation explodeAnimation;
     private Point location;
     private int range = 4;
     public int upRange, rightRange, downRange, leftRange;
     public boolean upDone, rightDone, downDone, leftDone, shouldCheckVal;
     public ArrayList<Integer> ranges;
-    private Image bombImage;
-    GameContainer gamecol;
+    private transient Image bombImage;
+    transient GameContainer gamecol;
 
-    private GameMap gameMap;
-    private TiledMap tiledMap;
+    private transient GameMap gameMap;
+    private transient TiledMap tiledMap;
 
-    public ArrayList<Point> nonwallSpots;
-    public Player usedBy;
+    public transient ArrayList<Point> nonwallSpots;
+    public transient Player usedBy;
+
+    public Potion(int x, int y, GameMap gMap, Player usedByPlayer) {
+        this.location = new Point(x, y);
+        ranges = new ArrayList<>();
+        this.gameMap = gMap;
+        this.tiledMap = gameMap.getTiledMap();
+        this.usedBy = usedByPlayer;
+        shouldCheckVal = false;
+    }
 
     public Potion(int x, int y, GameMap gMap, Animation bombAnim, Image bombImage, Sound explosionSound, Player usedByPlayer) {
         //   this.explosionSound = explosionSound;
@@ -66,8 +76,9 @@ public class Potion implements Runnable {
             try {
                 explodeBomb();
                 hasExploded = true;
+                usedBy.waitforAnimation(this);
                 //usedBy.placedBombs.remove(this);
-                
+
             } catch (SlickException ex) {
                 Logger.getLogger(Potion.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -78,48 +89,42 @@ public class Potion implements Runnable {
 
     public void explodeBomb() throws SlickException {
         int wallLayer = tiledMap.getLayerIndex("Walls");
-        
+        System.out.println("BOOOOOOOOOOOOOOOOOOOOOOOOOOM");
         range += usedBy.powerUpRangeCount;
-        
+
         for (int i = 0; i < this.range; i++) {
             if (!upDone) {
-                Point positionPos = new Point(this.location.getX(), this.getLocation().getY() - i);           
-                if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) 
-                {
-                    if (!gameMap.isBoxThere(new Point(this.location.getX(), this.getLocation().getY() - i)))
-                        {
-                            upRange = i + 1;
-                            //EXPLOSIE KAN NAAR UP.
-                        } 
-                    else 
-                        {
-                            upRange =  i + 1;
-                            upDone = true;
-                            gameMap.removeBoxAfterExplosion(positionPos, usedBy); 
-                            //KAN MAAR TOT DE BOX.
-                        }
-                } 
-                else {
+                Point positionPos = new Point(this.location.getX(), this.getLocation().getY() - i);
+                if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) {
+                    if (!gameMap.isBoxThere(new Point(this.location.getX(), this.getLocation().getY() - i))) {
+                        upRange = i + 1;
+                        //EXPLOSIE KAN NAAR UP.
+                    } else {
+                        upRange = i + 1;
+                        upDone = true;
+                        gameMap.removeBoxAfterExplosion(positionPos, usedBy);
+                        //KAN MAAR TOT DE BOX.
+                    }
+                } else {
                     upRange = i;
                     //IS WALL
                     upDone = true;
                 }
             }
-                
+
             if (!rightDone) {
                 Point positionPos = new Point(this.location.getX() + i, this.getLocation().getY());
 
                 if (tiledMap.getTileId(positionPos.getX(), positionPos.getY(), wallLayer) == 0) {
                     if (!gameMap.isBoxThere(positionPos)) {
                         rightRange = i + 1;
-                        if(rightRange == range)
-                        {
-                              rightDone = true;
+                        if (rightRange == range) {
+                            rightDone = true;
                         }
                         //EXPLOSIE KAN COMPLEET NAAR RECHTS.
                     } else {
                         // rightRange = 1;
-                        rightRange =  i + 1;
+                        rightRange = i + 1;
                         rightDone = true;
                         gameMap.removeBoxAfterExplosion(positionPos, usedBy);
                         //KAN MAAR TOT DE BOX.
@@ -156,20 +161,23 @@ public class Potion implements Runnable {
                     } else {
                         downRange = i + 1;
                         downDone = true;
-                        gameMap.removeBoxAfterExplosion(positionPos, usedBy);    
+                        gameMap.removeBoxAfterExplosion(positionPos, usedBy);
                         //KAN MAAR TOT DE BOX.
                     }
                 } else {
-                    downRange  = i;
+                    downRange = i;
                     downDone = true;
                 }
             }
         }
-            downDone = false;
-            leftDone = false;
-            rightDone = false;
-            upDone = false;
+        downDone = false;
+        leftDone = false;
+        rightDone = false;
+        upDone = false;
 //        }
+        
+        //this.usedBy.notifyGameMap();
+       
     }
 
 //    enum bombDirection
@@ -179,24 +187,16 @@ public class Potion implements Runnable {
 //        Up,
 //        Down
 //    }
-   
-    public void checkForPlayer(Point p)
-    {
-        ArrayList<Player> allPlayers = gameMap.players;
-        
-        for(Player pl : allPlayers)
-        {
-            if(pl.x == p.getX() && pl.y == p.getY())
-            {
-   
-                if(pl != usedBy)
-                {
-                    if(!pl.beingKilled)
-                    {
-                        if(shouldCheckVal)
-                        {
-                            if (pl.hasFlag) 
-                            {
+    public void checkForPlayer(Point p) {
+        ArrayList<Player> allPlayers = usedBy.gMap.players;
+
+        for (Player pl : allPlayers) {
+            if (pl.x == p.getX() && pl.y == p.getY()) {
+
+                if (pl != usedBy) {
+                    if (!pl.beingKilled) {
+                        if (shouldCheckVal) {
+                            if (pl.hasFlag) {
                                 gameMap.getFlag().location.setLocation(pl.x, pl.y);
                                 gameMap.getFlag().isDropped = true;
                                 gameMap.getFlag().isPickedUp = false;
@@ -205,12 +205,10 @@ public class Potion implements Runnable {
                                 pl.hasFlag = false;
                             }
                             pl.isKilled();
-                            usedBy.score += 100;  
+                            usedBy.score += 100;
                         }
-                    } 
-                }
-                else
-                {
+                    }
+                } else {
                     if (pl.hasFlag) {
                         gameMap.getFlag().location.setLocation(pl.x, pl.y);
                         gameMap.getFlag().isDropped = true;
@@ -224,7 +222,7 @@ public class Potion implements Runnable {
             }
         }
     }
-  
+
     public Sound getExplosionSound() {
         return explosionSound;
     }
