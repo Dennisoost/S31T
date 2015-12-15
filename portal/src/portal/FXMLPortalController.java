@@ -6,7 +6,6 @@
 package portal;
 
 import shared.GameRoom;
-import shared.Gameroom2;
 import Chat.ChatMessage;
 import java.io.IOException;
 import java.net.URL;
@@ -22,8 +21,8 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import Chat.ClientMessenger;
+import java.io.File;
 import java.rmi.RemoteException;
-import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,11 +31,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
@@ -91,7 +87,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
         grc = 0;
 
         btnSend.setDefaultButton(true);
-        cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
+        cm = new ClientMessenger("145.144.240.160", 1500, User.username, this);
         cm.startServer();
 
         /*try {
@@ -118,7 +114,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
             tableViewGame.setItems(gameRoomList);
          */
         try {
-            rmiClient = new RMIClient("127.0.0.1", 1099);
+            rmiClient = new RMIClient("145.144.240.160", 1099);
             gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
         } catch (RemoteException ex) {
             Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
@@ -136,7 +132,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
     }
 
     @FXML
-    private void joinGame(MouseEvent event) throws RemoteException {
+    private void joinGame(MouseEvent event) throws RemoteException, InterruptedException, IOException {
         String selectedItem = lvGames.getSelectionModel().getSelectedItem();
         GameRoom gameroom = null;
 
@@ -147,14 +143,17 @@ public class FXMLPortalController implements Initializable, IChatClient {
         }
 
         //TODO
-         if (rmiClient.joinGameRoom(selectedItem)) {
+        if (rmiClient.joinGameRoom(selectedItem)) {
             showWarning("Game joined!");
             refreshListview();
+            ProcessBuilder pb = new ProcessBuilder("C:\\Program Files\\Java\\jdk1.8.0_65\\jre\\bin\\java.exe", "-jar", "ClientOneJar.jar");
+            pb.directory(new File("C:\\Users\\Gebruiker\\Desktop\\S3\\PTS\\S31T\\Game\\Pyromancer"));
+            Process p = pb.start();
+            int exitVal = p.exitValue();
+        } else {
+            showWarning("Game is full!");
         }
-         else
-         {
-             showWarning("Game is full!");
-         }
+
     }
 
     @FXML
@@ -179,7 +178,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
         data.add(new Gameroom2(User.username + "'s room"));
         tableViewGame.setItems(data);*/
 
- /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
+        /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
         
          p.waitFor();
          int exitVal = p.exitValue();*/
