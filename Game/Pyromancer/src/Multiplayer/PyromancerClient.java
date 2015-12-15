@@ -330,7 +330,7 @@ public class PyromancerClient extends BasicGame {
     }
 
     public void handleAction(String buttonPress) {
-        int playID = 0;
+        int playID = 1;
         String handleString = buttonPress + "|" + playID;
 
         if (gameClient != null) {
@@ -590,7 +590,7 @@ public class PyromancerClient extends BasicGame {
         stopFont = new TrueTypeFont(awtStopFont, false);
         titleScoreFont = new TrueTypeFont(awtFont, false);
         scoreFont = new TrueTypeFont(awtScoreFont, false);
-        gameClient = new GameClient(10007, "127.0.0.1");
+        gameClient = new GameClient(10007, "145.93.72.169");
 
     }
 
