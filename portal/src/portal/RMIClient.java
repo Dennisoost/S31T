@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import shared.IGameroomManager;
 import shared.Gameroom2;
 import java.util.ArrayList;
+import shared.GameRoom;
 
 /**
  *
@@ -106,9 +107,9 @@ public class RMIClient {
     }
 
     // Test RMI connection
-    public ArrayList<Gameroom2> getGamerooms() throws RemoteException {
+    public ArrayList<GameRoom> getGamerooms() throws RemoteException {
         // Get number of students
-        ArrayList<Gameroom2> koersen = new ArrayList<>();
+        ArrayList<GameRoom> koersen = new ArrayList<>();
         if (gameroomManager.getGamerooms() != null) {
             System.out.println("Client: Number of students: " + gameroomManager.getGamerooms());
             koersen = gameroomManager.getGamerooms();
@@ -116,10 +117,24 @@ public class RMIClient {
         }
         return null;
     }
+
     public boolean addGameRoom(String name) throws RemoteException {
-        if(gameroomManager.addGameroom(name))
-        {
+        if (gameroomManager.addGameroom(name)) {
             return true;
+        }
+        return false;
+    }
+
+    public boolean joinGameRoom(String gamename) throws RemoteException {
+        ArrayList<GameRoom> gamerooms = gameroomManager.getGamerooms();
+        for (GameRoom gr : gamerooms) {
+            if (gr.getGame().equals(gamename)) {
+                //TODO
+                
+                if (gameroomManager.joinGameroom(gamename, User.username)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

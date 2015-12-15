@@ -5,6 +5,7 @@
  */
 package portal;
 
+import shared.GameRoom;
 import shared.Gameroom2;
 import Chat.ChatMessage;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import javafx.stage.Stage;
 import Chat.ClientMessenger;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -57,10 +59,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @FXML
     private Button btnSend;
 
-    private ArrayList<GameRoom> gameroomList;
     private int grc;
     private ClientMessenger cm;
-    private ArrayList<GameRoom> gameroomList2;
     private RMIClient rmiClient;
 
     @FXML
@@ -75,76 +75,86 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private ImageView imgGame3;
     @FXML
     private Label lblGame;
-    @FXML
-    private ListView<String> taGames;
+
     @FXML
     private ImageView imgGame31;
     @FXML
     private ImageView imgGame311;
-    @FXML
-    private TableView<Gameroom2> tableViewGame;
-    @FXML
-    private TableColumn<Gameroom2, String> tcGameroom;
-    @FXML
-    private TableColumn<Gameroom2, String> tcPlayer;
 
-    private final ObservableList<Gameroom2> data = FXCollections.observableArrayList(new Gameroom2("hello"));
-    private ObservableList<Gameroom2> gameRoomList; 
-            /**
-             * Initializes the controller class.
-             */
+    private ObservableList<GameRoom> gameRoomList;
+    @FXML
+    private ListView<String> lvGames;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // 
-        gameroomList = new ArrayList<>();
         grc = 0;
 
         btnSend.setDefaultButton(true);
         cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
         cm.startServer();
 
-        try {
+        /*try {
             rmiClient = new RMIClient("127.0.0.1", 1099);
             if (rmiClient.getGamerooms() != null) {
-                gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
+            gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
             }
+            } catch (RemoteException ex) {
+            Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            tcPlayer.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("player"));
+            tcGameroom.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("game"));
+            if (gameRoomList.size() == 0) {
+            try {
+            //gameRoomList.add(new Gameroom2("Testgame1"));
+            rmiClient.addGameRoom("testgame");
+            gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
+            } catch (RemoteException ex) {
+            Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            }
+            
+            tableViewGame.setItems(gameRoomList);
+         */
+        try {
+            rmiClient = new RMIClient("127.0.0.1", 1099);
+            gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
         } catch (RemoteException ex) {
             Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        tcPlayer.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("player"));
-        tcGameroom.setCellValueFactory(new PropertyValueFactory<Gameroom2, String>("game"));
-        if (gameRoomList.size() == 0) {
-            try {
-                //gameRoomList.add(new Gameroom2("Testgame1"));
-                rmiClient.addGameRoom("testgame");
-                gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
-            } catch (RemoteException ex) {
-                Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        ArrayList<String> gameNames = new ArrayList<>();
+        for (GameRoom gr : gameRoomList) {
+            gameNames.add(gr.getGame());
         }
-        
-            tableViewGame.setItems(gameRoomList);
-        
-
+        if (gameNames.size() > 0) {
+            lvGames.setItems(FXCollections.observableArrayList(gameNames));
+        }
         //Get current gamerooms
         // gameroomList = rmiClient.getGamerooms();
     }
 
     @FXML
-    private void joinGame(MouseEvent event) {
-        Gameroom2 gm = tableViewGame.getSelectionModel().getSelectedItem();
+    private void joinGame(MouseEvent event) throws RemoteException {
+        String selectedItem = lvGames.getSelectionModel().getSelectedItem();
+        GameRoom gameroom = null;
 
-        if (!gm.joinRoom()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Information Alert");
-            String s = "Game is full!";
-            alert.setContentText(s);
-            alert.show();
+        for (GameRoom gr : gameRoomList) {
+            if (gr.getGame().equals(selectedItem)) {
+                gameroom = gr;
+            }
         }
-        tableViewGame.refresh();
+
+        //TODO
+         if (rmiClient.joinGameRoom(selectedItem)) {
+            showWarning("Game joined!");
+            refreshListview();
+        }
+         else
+         {
+             showWarning("Game is full!");
+         }
     }
 
     @FXML
@@ -154,13 +164,46 @@ public class FXMLPortalController implements Initializable, IChatClient {
         gameroomList.add(gr);
         updateGameList();*/
 
-        data.add(new Gameroom2(User.username + "'s room"));
-        tableViewGame.setItems(data);
+        Random rand = new Random();
+        int n = rand.nextInt(50) + 1;
 
-        /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
+        if (!rmiClient.addGameRoom("room" + n)) {
+            showWarning("Gameroom name already exists");
+        } else {
+            showWarning("gameroom" + n + " created");
+            refreshListview();
+        }
+        //TODO 
+        //REFRESH LISTVIEW
+        /*
+        data.add(new Gameroom2(User.username + "'s room"));
+        tableViewGame.setItems(data);*/
+
+ /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
         
          p.waitFor();
          int exitVal = p.exitValue();*/
+    }
+
+    private void refreshListview() throws RemoteException {
+        gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
+        ArrayList<String> gameNames = new ArrayList<>();
+        for (GameRoom gr : gameRoomList) {
+            gameNames.add(gr.getGame());
+        }
+        if (gameNames.size() > 0) {
+            ObservableList games = FXCollections.observableArrayList(gameNames);
+            lvGames.setItems(games);
+        }
+    }
+
+    private void showWarning(String warning) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText("Information Alert");
+        String s = warning;
+        alert.setContentText(s);
+        alert.show();
     }
 
     @FXML

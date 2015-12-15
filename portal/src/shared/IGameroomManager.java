@@ -19,6 +19,10 @@ public interface IGameroomManager extends Remote {
 
     public boolean removeGameroom(String gamename) throws RemoteException;
 
-    public ArrayList<Gameroom2> getGamerooms() throws RemoteException;
-    
-}
+    public ArrayList<GameRoom> getGamerooms() throws RemoteException;
+
+    public boolean joinGameroom(String gamename, String username) throws RemoteException;
+
+    public GameRoom searchForGameroom(String gamename) throws RemoteException;
+
+    }

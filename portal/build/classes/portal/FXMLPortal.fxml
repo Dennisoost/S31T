@@ -16,21 +16,9 @@
       <Button fx:id="btnSpecGame" layoutX="537.0" layoutY="189.0" mnemonicParsing="false" onMouseClicked="#spectateGame" text="Spectate Game" />
       <Button fx:id="btnLeaderboard" layoutX="537.0" layoutY="221.0" mnemonicParsing="false" onMouseClicked="#showLeaderboard" prefHeight="25.0" prefWidth="96.0" text="Leaderboard" />
       <Button fx:id="btnLogout" layoutX="579.0" layoutY="46.0" mnemonicParsing="false" onMouseClicked="#logout" text="Logout" />
-      <ImageView fx:id="imgGame1" fitHeight="89.0" fitWidth="85.0" layoutX="20.0" layoutY="46.0" onMouseClicked="#selectGame1" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@bomberman_by_nooa-d39twdr.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fx:id="imgGame2" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="147.0" onMouseClicked="#selectGame2" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@bomberman_by_nooa-d39twdr.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fx:id="imgGame3" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="246.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@bomberman_by_nooa-d39twdr.jpg" />
-         </image>
-      </ImageView>
+      <ImageView fx:id="imgGame1" fitHeight="89.0" fitWidth="85.0" layoutX="20.0" layoutY="46.0" onMouseClicked="#selectGame1" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="imgGame2" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="147.0" onMouseClicked="#selectGame2" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="imgGame3" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="246.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true" />
       <Label layoutX="23.0" layoutY="14.0" text="Games">
          <font>
             <Font name="Rockwell" size="24.0" />
@@ -40,23 +28,9 @@
       <TextArea fx:id="taMessages" layoutX="123.0" layoutY="260.0" prefHeight="242.0" prefWidth="520.0" />
       <TextField fx:id="tbMessage" layoutX="124.0" layoutY="510.0" prefHeight="25.0" prefWidth="468.0" />
       <Button fx:id="btnSend" layoutX="600.0" layoutY="509.0" mnemonicParsing="false" onAction="#sendMessage" text="Send" />
-      <ListView fx:id="taGames" layoutX="444.0" layoutY="16.0" prefHeight="25.0" prefWidth="54.0" />
+      <ListView fx:id="lvGames" layoutX="124.0" layoutY="59.0" prefHeight="182.0" prefWidth="399.0" />
       <Label fx:id="lblGame" layoutX="209.0" layoutY="20.0" text="Bomberman 1" />
-      <ImageView fx:id="imgGame31" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="347.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@bomberman_by_nooa-d39twdr.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fx:id="imgGame311" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="449.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@bomberman_by_nooa-d39twdr.jpg" />
-         </image>
-      </ImageView>
-      <TableView fx:id="tableViewGame" layoutX="124.0" layoutY="44.0" prefHeight="203.0" prefWidth="401.0">
-        <columns>
-          <TableColumn fx:id="tcGameroom" prefWidth="324.0" text="Gameroom" />
-          <TableColumn fx:id="tcPlayer" minWidth="0.0" prefWidth="75.0" text="Players" />
-        </columns>
-      </TableView>
+      <ImageView fx:id="imgGame31" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="347.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="imgGame311" fitHeight="85.0" fitWidth="85.0" layoutX="20.0" layoutY="449.0" onMouseClicked="#selectGame3" pickOnBounds="true" preserveRatio="true" />
    </children>
 </AnchorPane>
