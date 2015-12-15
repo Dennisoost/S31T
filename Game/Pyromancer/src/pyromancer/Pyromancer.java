@@ -12,6 +12,7 @@ import IngameAssets.Potion;
 import IngameAssets.PowerUp;
 import Multiplayer.GameServer;
 import Multiplayer.GameState;
+import Multiplayer.StateMonitor;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,6 +92,8 @@ public class Pyromancer extends BasicGame {
             SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
             String time = sdf.format(date);
             g.drawString(time, 700, 250); 
+            
+            System.out.println("Drawing TIME: " + seconds);
             //TEKEN FLAG + TIMER.
         }
      
@@ -134,6 +137,7 @@ public class Pyromancer extends BasicGame {
         }
         if(gameMap.getFlag().isPickedUp)
         {
+            System.out.println("should be picked up");
             startAndDisplayFlag = true;
         }      
     }
@@ -155,39 +159,20 @@ public class Pyromancer extends BasicGame {
     public void update(GameContainer gc, int i) throws SlickException {
 //        int wallLayer = tiledMap.getLayerIndex("Walls");
 //        
-//        if(!shouldStartScores)
-//        {
-//            for(Player plyr : players)
-//            {
-//                 if(plyr.score > 0)
-//                    {
-//                        shouldStartScores = true;
-//                    }
-//            }
-//        }
-//        else
-//        {
-//            sortPlayersPerSecond(i);
-//        }
-//
-//        if(startAndDisplayFlag && gameMap.getFlag().isPickedUp)
-//        {           
-//            if(readyToAddScore(i))
-//            { 
-//                for(Player plyr : players)
-//                {
-//                   
-//                    if(plyr.hasFlag)
-//                    {
-//                        plyr.score += flagTime * 10;
-//                    }
-//                } 
-//            }      
-//        }
-//        else
-//        {
-//            flagTime = 0;
-//        }
+            if(gameMap != null)
+            {
+                if(gameMap.allPotions.size() > 0)
+                {
+                    gameMap.checkToKillPlayer();
+                }
+            }
+        
+
+            if(gameMap.getFlag().isPickedUpOnce)
+            {
+               gameDuration -= i;
+                StateMonitor.usedState.gameDurationToGo = gameDuration;
+            }
         
 //        if(shouldBoom)
 //        {
@@ -200,6 +185,7 @@ public class Pyromancer extends BasicGame {
         time++;
         if (time > 6) {
            
+ 
 //            player1.move(gc, gameMap, false);
 //            player2.move(gc, gameMap, false);
             time = 0;

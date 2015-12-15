@@ -6,6 +6,7 @@
 package GameAssets;
 
 import IngameAssets.Potion;
+import Multiplayer.StateMonitor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -206,7 +207,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
 
             synchronized (gMap.allPotions) {
                 gMap.addPotionToAll(bomb);
-                
+                StateMonitor.setBombs(gMap.allPotions);
             }
                 notifyGameMap();
 
@@ -219,15 +220,11 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                 //ER ZIJN AL ZAT BOMMEN, DOE NIKS.
             }
         }
-
     }
 
     public synchronized  void notifyGameMap() {
-        
-  
                     this.setChanged();
                     this.notifyObservers(this);
-
     }
 
     public void isKilled() {
@@ -253,6 +250,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
 
     public void move(String input, GameMap gameMap) {
         actionName = input;
+        direction = null;
         if (!beingKilled) {
             switch (input) {
                 case "left":
@@ -267,13 +265,13 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                         if (foundPotion != null) {
                             if (powerUpCanKick) {
                                 int amountLeft = gameMap.kickIfPotion(this, foundPotion) - 1;
-
-                                Point newLoc = new Point(foundPotion.getLocation().getX() + amountLeft, foundPotion.getLocation().getY());
+                                Point newLoc = new Point(foundPotion.getLocation().getX() - amountLeft, foundPotion.getLocation().getY());
                                 movingBomb(foundPotion, newLoc, direction);
-
+                                
                             }
                         } else {
                             this.x--;
+                            notifyGameMap();
                         }
 
                         //Continue checking and/or move left.
@@ -298,6 +296,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                             }
                         } else {
                             this.x++;
+                            notifyGameMap();
                         }
                     }
                     break;
@@ -318,6 +317,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                             }
                         } else {
                             this.y--;
+                            notifyGameMap();
                         }
                     }
                     break;
@@ -333,13 +333,14 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                         if (foundPotion != null) {
                             if (powerUpCanKick) {
                                 int amountDown = gameMap.kickIfPotion(this, foundPotion) - 1;
-
+                               
                                 Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY()  + amountDown);
                                 movingBomb(foundPotion, newLoc, direction);
 
                             }
                         } else {
                             this.y++;
+                            notifyGameMap();
                         }
                     }
                     break;
@@ -347,7 +348,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
             }
         }
 
-        notifyGameMap();
+        
     }
 
     public boolean detectCollision(Point p, GameMap gm) {
@@ -363,8 +364,10 @@ public class Player extends Observable implements Comparator<Player>, Serializab
 
     public void movingBomb(Potion p, Point goal, moveDirection chosenDir) {
         Point currentGoal = goal;
+        System.out.println("currentgoal: " + currentGoal);
         Thread thr = new Thread() {
             public void run() {
+                
                 while (!p.getLocation().equals(currentGoal)) {
 
                     System.out.println("moving potion! loc = " + p.getLocation());
@@ -395,6 +398,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                             }
                             break;
                         case Left:
+                            System.err.println("left!!!!");
                             Point nextLeftPoint = new Point(p.getLocation().getX() - 1, p.getLocation().getY());
                             if (!gMap.checkForPlayer(nextLeftPoint)) {
                                 p.setLocation(nextLeftPoint);
@@ -405,8 +409,8 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                     }
 
                     try {
-                        Thread.sleep(50);
-                        notifyGameMap();
+                        Thread.sleep(150);
+                      
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -431,55 +435,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
         return null;
     }
 
-    public void draw(Graphics g, Image BombImage, Animation BombAnim) {
 
-        
-        synchronized (placedBombs) {
-            if (this.placedBombs.size() > 0) {
-                for (Potion potion : this.placedBombs) {
-                    if (potion.getExplodeAnimation() == null) {
-                        potion.setExplodeAnimation(BombAnim);
-                    }
-
-                    if (!potion.hasExploded) {
-                        g.drawImage(BombImage, (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
-                    } else {
-                        BombAnim.start();
-                        potion.shouldCheckVal = true;
-                        int posX = potion.getLocation().getX();
-                        int posY = potion.getLocation().getY();
-                        if (potion.downRange != 0) {
-                            for (int d = 0; d < potion.downRange; d++) {
-                                g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);
-                                //potion.checkForPlayer(new Point(posX, posY + d));
-                            }
-                        }
-                        if (potion.upRange != 0) {
-                            for (int u = 0; u < potion.upRange; u++) {
-                                g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);
-                                //potion.checkForPlayer(new Point(posX, posY - u));
-                            }
-                        }
-
-                        if (potion.leftRange != 0) {
-                            for (int l = 0; l < potion.leftRange; l++) {
-                                g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);
-                                //potion.checkForPlayer(new Point(posX - l, posY));
-                            }
-                        }
-
-                        if (potion.rightRange != 0) {
-                            for (int r = 0; r < potion.rightRange; r++) {
-                                g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);
-                                //potion.checkForPlayer(new Point(posX + r, posY));
-                            }
-                        }
-                        //waitforAnimation(potion);
-                    }
-                }
-            }
-        }
-    }
 
     public void waitforAnimation(Potion p) {
         synchronized(gMap)
@@ -510,11 +466,11 @@ public class Player extends Observable implements Comparator<Player>, Serializab
             synchronized (placedBombs) {
                 placedBombs.remove(p);
             }
-            System.out.println("State of gmap:" + gMap);
-            System.out.println("State of gmapAllPots: " +  gMap.allPotions.size());
+
             synchronized(gm.allPotions)
             {
                  gm.allPotions.remove(p);
+                 StateMonitor.setBombs(gm.allPotions);
             }
                
             

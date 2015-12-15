@@ -109,23 +109,6 @@ public class GameClient
                      * Parserino later.
                      */
                    receivedState  = (GameState) sInput.readObject();
-                   
-                   for(Player p : receivedState.spawnedPlayers)
-                   {
-                       //System.out.println("CLIENT HAS RECEIVED COORDS FOR PLAYER " + p.name + " : " + p.x + "," + p.y);
-                       System.out.println("do want action: " + p.actionName);
-                   }
-                   
-                    System.out.println("Are there any power ups? " + receivedState.allPowerUps.size());
-                   
-                    System.out.println("loldowantboxsize: " + receivedState.spawnedBoxes.size());
-                    for(PowerUp pu : receivedState.allPowerUps)
-                    {
-                        if(pu.isDropped)
-                        {
-                            System.out.println("Should be a powerup (" + pu.type + ") at: " + pu.location);
-                        }
-                    }
                     // if console mode print the message and add back the prompt
                 
                     

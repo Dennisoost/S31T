@@ -15,26 +15,27 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
  * @author Gebruiker
  */
-public class GameServer implements Observer
-{
-   private static int uniqueId;
+public class GameServer implements Observer {
+
+    private static int uniqueId;
 
     private ObjectInputStream sInput;		// to read from the socket
     private ObjectOutputStream sOutput;		// to write on the socket
     private Socket socket;
     private int port;
-    
-    private boolean keepGoing = false;   
+
+    private boolean keepGoing = false;
     private ArrayList<ClientThread> al;
-    
-    public GameState currentState; 
+
     public int foundPlayerID;
-    
+
     private GameMap receiveGameMap;
 //    public static void main(String[] args)
 //    {
@@ -44,57 +45,53 @@ public class GameServer implements Observer
 
     public GameServer(int port, GameMap g) {
         this.port = port;
-        currentState = new GameState();
         this.receiveGameMap = g;
         this.al = new ArrayList<>();
     }
-   
+
     public void start() {
         keepGoing = true;
         /* create socket server and wait for connection requests */
         try {
-            
+
             Thread waitingForConnections = new Thread(new Runnable() {
-            ServerSocket serverSocket = new ServerSocket(port);
+                ServerSocket serverSocket = new ServerSocket(port);
+
                 @Override
-                public void run() 
-                {
-                         try
-                         {
-                             while (keepGoing) {
-                                 // format message saying we are waiting
-                                 display("Server waiting for Clients on port " + port + ".");
+                public void run() {
+                    try {
+                        while (keepGoing) {
+                            // format message saying we are waiting
+                            display("Server waiting for Clients on port " + port + ".");
 
-                                 Socket socket = serverSocket.accept();  	// accept connection
-                                 // if I was asked to stop
-                                 if (!keepGoing) {
-                                     break;
-                                 }
-                                 ClientThread t = new ClientThread(socket);  // make a thread of it
-                                 t.start();
-                                 al.add(t);
-                             }
-                             // I was asked to stop
-                             try {
-                                 serverSocket.close();
+                            Socket socket = serverSocket.accept();  	// accept connection
+                            // if I was asked to stop
+                            if (!keepGoing) {
+                                break;
+                            }
+                            ClientThread t = new ClientThread(socket);  // make a thread of it
+                            t.start();
+                            al.add(t);
 
-                             } catch (Exception e) {
-                                 display("Exception closing the server and clients: " + e);
-                             }
-                         }// infinite loop to wait for connections
-                         catch(IOException ioe)
-                         {
-                             System.err.println("error in waitingForConnections");
-                             ioe.printStackTrace();
-                         }
-                           
+                        }
+                        // I was asked to stop
+                        try {
+                            serverSocket.close();
+
+                        } catch (Exception e) {
+                            display("Exception closing the server and clients: " + e);
+                        }
+                    }// infinite loop to wait for connections
+                    catch (IOException ioe) {
+                        System.err.println("error in waitingForConnections");
+                        ioe.printStackTrace();
+                    }
+
                 }
             });
-            
+
             waitingForConnections.start();
             // the socket used by the server
-          
-
 
         } // something went bad
         catch (IOException e) {
@@ -102,34 +99,24 @@ public class GameServer implements Observer
             display(msg);
         }
     }
-    
-    public void display(String msg)
-    {
+
+    public void display(String msg) {
         System.out.println(msg);
     }
 
     @Override
-    public synchronized void update(Observable o, Object arg) {
-       
-        receiveGameMap = (GameMap) o;
-        currentState.spawnedBoxes = receiveGameMap.getSpawnBoxes();
-        currentState.spawnedPlayers = receiveGameMap.players;
-        
-         for(ClientThread ct : al)
-         {
-            ct.writeState();
-         }
+    public void update(Observable o, Object arg) {
+
     }
-    
+
     class ClientThread extends Thread {
 
         // the socket where to listen/talk
-
         Socket socket;
         ObjectInputStream sInput;
         ObjectOutputStream sOutput;
         // my unique id (easier for deconnection)
-        int id;   
+        int id;
         // the date I connect
 
         // Constructore
@@ -144,13 +131,17 @@ public class GameServer implements Observer
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
                 // read the username
-              writeState();
+
+                writeState();
+                Timer timer = new Timer();
+                timer.scheduleAtFixedRate(new updateClients(this), 0, 150);
+
             } catch (IOException e) {
                 display("Exception creating new Input/output Streams: " + e);
                 return;
             } // have to catch ClassNotFoundException
             // but I read a String, I am sure it will work
-           
+
         }
 
         // what will run forever
@@ -165,28 +156,24 @@ public class GameServer implements Observer
                      */
                     String action = (String) sInput.readObject();
                     String actionName = action.substring(0, action.indexOf("|"));
-                    int playID  = Integer.parseInt(action.substring(action.indexOf("|") + 1 , action.length()));
+                    int playID = Integer.parseInt(action.substring(action.indexOf("|") + 1, action.length()));
                     handlePlayerInput(actionName, playID);
-                    
+
                     //HAAL ITEM
-                   
                 } catch (IOException e) {
                     //display(username + " Exception reading Streams: " + e);
                     break;
-                  } 
-                catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     //display(username + " Exception reading Streams: " + e);
                     break;
-                  } 
+                }
                 // the messaage part of the ChatMessage
 
                 // Switch on the type of message receive
-               
-        
-			// remove myself from the arrayList containing the list of the
-            // connected Clients
-        //    close();
-        }
+                // remove myself from the arrayList containing the list of the
+                // connected Clients
+                //    close();
+            }
         }
 
         // try to close everything
@@ -215,54 +202,51 @@ public class GameServer implements Observer
         /*
          * Write a String to the Client output stream
          */
-        private  boolean writeState() {
+        private boolean writeState() {
             // if Client is still connected send the message to it
             if (!socket.isConnected()) {
                 //close();
                 return false;
+            } else {
+                StateMonitor.setLockForSending(sOutput);
             }
-            // write the message to the stream
-            try {
-                synchronized(sOutput)
-                {
-                       sOutput.reset();
-                        sOutput.writeObject(getGameState());
-                        sOutput.flush();
-                }
-             
-//                System.out.println("sending a message fam");
-            } // if an error occurs, do not abort just inform the user
-            catch (IOException e) {
-                display(e.toString());
-            }
-            return true;
+
+            return false;
+
         }
-        
-        public GameState getGameState()
-        {
-            return currentState;
-        }
-        
-        public void handlePlayerInput(String actionName, int pID)
-        {
-            if(receiveGameMap.players.get(pID) != null)
-            {
+
+        public void handlePlayerInput(String actionName, int pID) {
+            if (receiveGameMap.players.get(pID) != null) {
                 Player p = receiveGameMap.players.get(pID);
                 //LAAT PLAYER BEWEGEN MET IETS.
 //                System.out.println("should be handling some shit: action = [" + actionName + "]");
                 p.gMap = receiveGameMap;
-                
-                if(!actionName.contains("bomb"))
-                {
-                                    p.move(actionName, receiveGameMap);
+
+                if (!actionName.contains("bomb")) {
+                    p.move(actionName, receiveGameMap);
+                } else {
+                    p.placeBomb(receiveGameMap);
                 }
-                else
-                {
-                                    p.placeBomb(receiveGameMap);
-                }
-                
+
             }
         }
     }
-    
+
+    public class updateClients extends TimerTask {
+
+        public ClientThread ct;
+
+        public updateClients(ClientThread cthread) {
+            this.ct = cthread;
+        }
+
+        @Override
+        public void run() {
+
+            this.ct.writeState();
+
+        }
+
+    }
+
 }

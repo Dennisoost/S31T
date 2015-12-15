@@ -10,11 +10,16 @@ import IngameAssets.Potion;
 import IngameAssets.PowerUp;
 import Multiplayer.GameServer;
 import Multiplayer.GameState;
+import Multiplayer.StateMonitor;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lwjgl.util.Point;
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.tiled.TiledMap;
@@ -32,6 +37,7 @@ public class GameMap extends Observable implements Observer {
     public ArrayList<Player> players;
     public ArrayList<Potion> allPotions;
 
+    public boolean startCounting = false;
     private Image boxImage, flagImage;
     private PowerUp flag;
     private Box b;
@@ -58,48 +64,37 @@ public class GameMap extends Observable implements Observer {
         for (PowerUp p : powerUps) {
             if (p.type.equals(PowerUp.PowerUpType.Flag)) {
                 flag = p;
+                System.err.println("FLAG SHOULD HAVE BEEN CREATED!");
             }
         }
-      
+
         System.out.println("gonna add observers on " + players.size() + " players");
         for (Player plyr : players) {
             plyr.addObserver(this);
         }
 
         gs = new GameServer(10007, this);
-
-        gs.currentState = new GameState();
-        gs.currentState.spawnedBoxes = spawnBoxes;
-        gs.currentState.spawnedPlayers = players; 
-        gs.currentState.allPowerUps = powerUps;
+        StateMonitor.usedState = new GameState();
+        StateMonitor.usedState.spawnedBoxes = spawnBoxes;
+        StateMonitor.usedState.spawnedPlayers = players;
+        StateMonitor.usedState.allPowerUps = powerUps;
         this.addObserver(gs);
 
         gs.start();
 
     }
 
-    @Override
-    public synchronized void update(Observable o, Object arg) {
-  
+//    @Override
+    public void update(Observable o, Object arg) {
+
         Player movedPlayer = (Player) o;
-    
-                    
-                    System.out.println("bombplace size eh? : " + movedPlayer.placedBombs.size());
-
-                    gs.currentState.spawnedPlayers.get(gs.currentState.spawnedPlayers.indexOf(movedPlayer)).x = movedPlayer.x;
-                    gs.currentState.spawnedPlayers.get(gs.currentState.spawnedPlayers.indexOf(movedPlayer)).y = movedPlayer.y;
-                   gs.currentState.spawnedBoxes = spawnBoxes;
-                   this.setChanged();
-                    this.notifyObservers(this);
-    
-
-
+        StateMonitor.usedState.spawnedPlayers.get(StateMonitor.usedState.spawnedPlayers.indexOf(movedPlayer)).x = movedPlayer.x;
+        StateMonitor.usedState.spawnedPlayers.get(StateMonitor.usedState.spawnedPlayers.indexOf(movedPlayer)).y = movedPlayer.y;
     }
 
-    public void notifyGameServer() {
-        gs.currentState.spawnedPlayers = players;
-    }
-
+//    public void notifyGameServer() {
+//        gs.currentState.spawnedPlayers = players;
+//    }
     public void GenerateBoxes() {
 
         int objectLayer = tiledMap.getLayerIndex("Walls");
@@ -133,10 +128,6 @@ public class GameMap extends Observable implements Observer {
         }
         System.out.println("spawnboxes should have been generated");
         addPowerUps();
-    }
-
-    public void addBoxesToServer() {
-        pyromancer.Pyromancer.gameServer.currentState.spawnedBoxes = spawnBoxes;
     }
 
     public void addPowerUps() {
@@ -270,20 +261,17 @@ public class GameMap extends Observable implements Observer {
             }
         }
 
-        synchronized(spawnBoxes)
-        {
-                 spawnBoxes.remove(toRemove);
+        synchronized (spawnBoxes) {
+            spawnBoxes.remove(toRemove);
         }
-   
+
         if (toRemove.hiddenPowerUp != null) {
             toRemove.hiddenPowerUp.isDropped = true;
         }
         pl.score += 20;
         System.out.println("BOX DESTROOOOOYED");
-        this.gs.currentState.spawnedBoxes = spawnBoxes;
-        
-        notifyGameServer();
 
+        StateMonitor.setBoxes(spawnBoxes);
 
         return false;
     }
@@ -301,6 +289,30 @@ public class GameMap extends Observable implements Observer {
                     play.hasFlag = true;
                     pup.isPickedUpOnce = true;
                     System.out.println("PLAYER [" + play.name + "] GOT THE FLAG!(" + powerUps.indexOf(pup) + ")");
+
+                    Thread pickedFlagThread = new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+
+                            int iterationInt = 0;
+                            while (play.hasFlag) {
+                                try {
+                                    Thread.sleep(1000);
+                                    if (iterationInt < 30) {
+                                        iterationInt++;
+                                    }
+
+                                    play.score += iterationInt * 10;
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(GameMap.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+
+                        }
+                    });
+
+                    pickedFlagThread.start();
                     //  flag = new Flag(b, p, flagImage)
                 } else if (pup.type.equals(PowerUp.PowerUpType.Kick)) {
                     play.powerUpCanKick = true;
@@ -329,11 +341,12 @@ public class GameMap extends Observable implements Observer {
                 }
             }
         }
-        synchronized(this.powerUps)
-        {
+        synchronized (this.powerUps) {
             powerUps.remove(placePower);
-        }       
-        notifyGameServer();
+        }
+
+        StateMonitor.setPowerUps(powerUps);
+
         return placePower;
     }
 
@@ -431,6 +444,94 @@ public class GameMap extends Observable implements Observer {
 
     public synchronized void removePotionFromAll(Potion p) {
         allPotions.remove(p);
+    }
+
+    public void checkToKillPlayer() {
+        for (Potion targetingBomb : allPotions) {
+
+            if (targetingBomb.hasExploded) {
+                System.out.println("Should explode right");
+
+                int posX = targetingBomb.getLocation().getX();
+                int posY = targetingBomb.getLocation().getY();
+
+                if (targetingBomb.downRange != 0) {
+                    for (int d = 0; d < targetingBomb.downRange; d++) {
+                        targetingBomb.checkForPlayer(new Point(posX, posY + d));
+                    }
+                }
+
+                if (targetingBomb.upRange != 0) {
+                    for (int u = 0; u < targetingBomb.upRange; u++) {
+                        targetingBomb.checkForPlayer(new Point(posX, posY - u));
+                    }
+                }
+
+                if (targetingBomb.leftRange != 0) {
+                    for (int l = 0; l < targetingBomb.leftRange; l++) {
+                        targetingBomb.checkForPlayer(new Point(posX - l, posY));
+                    }
+                }
+
+                if (targetingBomb.rightRange != 0) {
+                    for (int r = 0; r < targetingBomb.rightRange; r++) {
+                        targetingBomb.checkForPlayer(new Point(posX + r, posY));
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    public void drawBombs(Graphics g, Image BombImage, Animation BombAnim) {
+
+        if(allPotions != null)           
+        {
+            if (this.allPotions.size() > 0) {
+                for (Potion potion : this.allPotions) {
+                    if (potion.getExplodeAnimation() == null) {
+                        potion.setExplodeAnimation(BombAnim);
+                    }
+
+                    if (!potion.hasExploded) {
+                        g.drawImage(BombImage, (potion.getLocation().getX() * 32) + 5, (potion.getLocation().getY() * 32) + 5);
+                    } else {
+                        BombAnim.start();
+                        potion.shouldCheckVal = true;
+                        int posX = potion.getLocation().getX();
+                        int posY = potion.getLocation().getY();
+                        if (potion.downRange != 0) {
+                            for (int d = 0; d < potion.downRange; d++) {
+                                g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY + d) * 32) + 5);
+                                //potion.checkForPlayer(new Point(posX, posY + d));
+                            }
+                        }
+                        if (potion.upRange != 0) {
+                            for (int u = 0; u < potion.upRange; u++) {
+                                g.drawAnimation(potion.getExplodeAnimation(), (posX * 32) + 5, ((posY - u) * 32) + 5);
+                                //potion.checkForPlayer(new Point(posX, posY - u));
+                            }
+                        }
+
+                        if (potion.leftRange != 0) {
+                            for (int l = 0; l < potion.leftRange; l++) {
+                                g.drawAnimation(potion.getExplodeAnimation(), ((posX - l) * 32) + 5, ((posY) * 32) + 5);
+                                //potion.checkForPlayer(new Point(posX - l, posY));
+                            }
+                        }
+
+                        if (potion.rightRange != 0) {
+                            for (int r = 0; r < potion.rightRange; r++) {
+                                g.drawAnimation(potion.getExplodeAnimation(), ((posX + r) * 32) + 5, ((posY) * 32) + 5);
+                                //potion.checkForPlayer(new Point(posX + r, posY));
+                            }
+                        }
+                        //waitforAnimation(potion);
+                    }
+                }
+            }
+        }
     }
 
 }

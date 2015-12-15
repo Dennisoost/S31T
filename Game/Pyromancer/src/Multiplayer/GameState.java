@@ -7,6 +7,7 @@ package Multiplayer;
 
 import GameAssets.Player;
 import IngameAssets.Box;
+import IngameAssets.Potion;
 import IngameAssets.PowerUp;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,11 +20,16 @@ public class GameState implements Serializable
 {
        public ArrayList<Box> spawnedBoxes; 
        public ArrayList<Player> spawnedPlayers; 
+       public ArrayList<Potion> allPotions; 
        public ArrayList<PowerUp> allPowerUps; 
+       public int gameDurationToGo;
+       
        public GameState()
        {
            spawnedBoxes = new ArrayList<>();
            this.allPowerUps = new ArrayList<>();
+           this.allPotions = new ArrayList<>();
+           gameDurationToGo = 0;
        }
 
     public ArrayList<Box> getSpawnedBoxes() {

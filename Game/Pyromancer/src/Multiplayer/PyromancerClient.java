@@ -55,6 +55,7 @@ public class PyromancerClient extends BasicGame {
 
     //OTHER
     private ArrayList<PowerUp> powerUps;
+    private ArrayList<Potion> allPotions;
     private int x, y, time, flagTime, gameDuration, gameDurationSeconds, bombTime;
     int walktime = 0;
     public long secondTime, oneSecondTime;
@@ -109,16 +110,21 @@ public class PyromancerClient extends BasicGame {
         if (players != null) {
             if (players.size() > 0) {
                 int nr = 0;
+                
                 for (Player plyr : players) {
                     if (plyr.getCurrentSprite() != null) {
                         nr++;
                         g.drawAnimation(plyr.getCurrentSprite(), setDrawValue(plyr.x), setDrawValue(plyr.y));
-                        g.drawString(plyr.name, 695, 190 + (50 * nr));
-                        plyr.draw(g, bombImage, testAnim);
+                      
                     }
                 }
                 nr = 0;
             }
+        }
+        
+        if(player1 != null)
+        {
+            drawPowerUps(player1, g);
         }
 
         if (powerUps != null) {
@@ -129,6 +135,16 @@ public class PyromancerClient extends BasicGame {
                 }
 
             }
+        }
+        
+     
+        
+        if(gameDuration != 0)
+        {
+            Date date = new Date(gameDuration);
+            SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+            String time = sdf.format(date);
+            g.drawString(time, 700, 250); 
         }
         
                 
@@ -146,6 +162,16 @@ public class PyromancerClient extends BasicGame {
             gc.getGraphics().drawString(players.get(players.indexOf(p)).name, 695, numberHeights.get(players.indexOf(p)));
             gc.getGraphics().drawString(String.valueOf(players.get(players.indexOf(p)).score), 810, numberHeights.get(players.indexOf(p)));
         }
+        
+
+        if (gameMap != null) 
+        {
+            if(gameMap.allPotions != null)
+            {
+                                gameMap.drawBombs(g, bombImage, testAnim);
+            }
+        }
+        
 //        if(gameMap.getFlag().isPickedUp)
 //        {
 //            startAndDisplayFlag = true;
@@ -214,6 +240,11 @@ public class PyromancerClient extends BasicGame {
                             }
                         }
                     }
+                    
+                    if(gameClient.currentState().allPotions != null)
+                    {
+                        gameMap.allPotions  = gameClient.currentState().allPotions;
+                    }
 
                     if (gameClient.currentState().spawnedPlayers != null) {
                         players = gameClient.currentState().spawnedPlayers;
@@ -229,6 +260,8 @@ public class PyromancerClient extends BasicGame {
             }
             time = 0;
         }
+        
+        
 
         walktime++;
         if (walktime > 9) {
@@ -256,19 +289,12 @@ public class PyromancerClient extends BasicGame {
         } else {
             sortPlayersPerSecond(i);
         }
-
-        if (startAndDisplayFlag && gameMap.getFlag().isPickedUp) {
-            if (readyToAddScore(i)) {
-                for (Player plyr : players) {
-
-                    if (plyr.hasFlag) {
-                        plyr.score += flagTime * 10;
-                    }
-                }
-            }
-        } else {
-            flagTime = 0;
+        
+        if(gameClient.currentState() != null)
+        {
+            gameDuration = gameClient.currentState().gameDurationToGo;
         }
+        
 
     }
     
@@ -424,30 +450,30 @@ public class PyromancerClient extends BasicGame {
 //        }   
 //    }
 //    
-//    public void drawPowerUps(Player p, Graphics g) {
-//
-//        g.setFont(scoreFont);
-//
-//        if (p.powerUpBombCount > 0) {
-//            g.drawImage(powerUpExtra, 670, 300);
-//            g.drawString(String.valueOf(p.powerUpBombCount), 710, 310);
-//        }
-//
-//        if (p.powerUpCanKick = true) {
-//            g.drawImage(powerUpKick, 670, 350);
-//            g.drawString("Active", 710, 360);
-//        }
-//        
-//        if (p.powerUpRangeCount > 0) {
-//            g.drawImage(powerUpRange, 670, 400);
-//            g.drawString(String.valueOf(p.powerUpRangeCount), 710, 410);
-//        }
-//        
-//        if (p.powerUpSpeedCount > 0) {
-//            g.drawImage(powerUpSpeed, 670, 450);
-//            g.drawString(String.valueOf(p.powerUpSpeedCount), 710, 460);
-//        }
-//    }
+    public void drawPowerUps(Player p, Graphics g) {
+
+        g.setFont(scoreFont);
+        System.out.println("val of player: " + p);
+        if (p.powerUpBombCount > 0) {
+            g.drawImage(powerUpExtra, 670, 300);
+            g.drawString(String.valueOf(p.powerUpBombCount), 710, 310);
+        }
+
+        if (p.powerUpCanKick = true) {
+            g.drawImage(powerUpKick, 670, 350);
+            g.drawString("Active", 710, 360);
+        }
+        
+        if (p.powerUpRangeCount > 0) {
+            g.drawImage(powerUpRange, 670, 400);
+            g.drawString(String.valueOf(p.powerUpRangeCount), 710, 410);
+        }
+        
+        if (p.powerUpSpeedCount > 0) {
+            g.drawImage(powerUpSpeed, 670, 450);
+            g.drawString(String.valueOf(p.powerUpSpeedCount), 710, 460);
+        }
+    }
     @Override
     public void init(GameContainer gc) throws SlickException {
         if (gc instanceof AppGameContainer) {
