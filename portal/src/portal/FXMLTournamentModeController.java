@@ -113,6 +113,10 @@ public class FXMLTournamentModeController implements Initializable {
         
         if(!name.equals("") && !description.equals("") && !tournamentDate.equals("")){
             database.CreateTournament(name, maxPlayers, description, creationDate, tournamentDate);
+            cbTournamentName.getSelectionModel().clearSelection();
+            ArrayList<String> names = database.GetTournamentNames();
+            ObservableList obNames = FXCollections.observableList(names);
+            cbTournamentName.setItems(obNames);
             System.out.println("New tournament created");
         }
         else{
@@ -154,7 +158,8 @@ public class FXMLTournamentModeController implements Initializable {
         String cbValue = cbTournamentName.getValue().toString();
         
         if(!cbValue.equals("")){
-            if(database.JoinTournament(username,cbValue)){
+            if(database.JoinTournament(username, cbValue)){
+                lblPlayers.setText(""+database.CheckPlayerCount(cbValue));
                 System.out.println(username + " joined " + cbValue);
             }
             else{
@@ -164,7 +169,6 @@ public class FXMLTournamentModeController implements Initializable {
                 alert.show();
             }
         }
-        
     }
 
     @FXML

@@ -9,6 +9,7 @@ import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.Statement;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -230,7 +231,37 @@ public class DatabaseConnection {
         return null;
     }
     
-    public boolean JoinTournament(String username, String tournamentName) throws ClassNotFoundException, SQLException{
+    
+    public HashMap<String, String> GetTournamentEntries() throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+            stmt = (Statement) conn.createStatement();
+            String query = "select username, tournamentname from tournament_user";
+
+            ResultSet rs = stmt.executeQuery(query);
+            HashMap<String, String> map = new HashMap<>();
+            while (rs.next()) {
+                ArrayList<String> row = new ArrayList<>();
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i += 2) {
+                    //Iterate Column
+                    map.put(rs.getString(i), rs.getString(i + 1));
+                }
+            }
+            return map;
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseConnection.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            //STEP 6: Clean-up environment
+            stmt.close();
+            conn.close();
+        }
+        return null;
+    }
+    
+    public boolean JoinTournament(String username, String tournamentName) throws ClassNotFoundException, SQLException {
         Connection conn = null;
         Statement stmt = null;
         try {
@@ -238,10 +269,18 @@ public class DatabaseConnection {
             conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
             stmt = (Statement) conn.createStatement();
             String insert = "INSERT INTO TOURNAMENT_USER (USERNAME,TOURNAMENTNAME) VALUES ('" + username + "','" + tournamentName + "')";
+            for (String key : GetTournamentEntries().keySet()) {
+                String value = GetTournamentEntries().get(key);
+                System.out.println(key + " " + value);
+                if (key.equals(username) && value.equals(tournamentName)) {
+                    return false;
+                }
+            }
             stmt.executeUpdate(insert);
             return true;
-        } 
-        catch (SQLException ex) {
+            
+            
+        } catch (SQLException ex) {
             Logger.getLogger(DatabaseConnection.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } finally {
