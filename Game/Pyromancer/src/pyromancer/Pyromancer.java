@@ -10,6 +10,9 @@ import GameAssets.Player;
 import IngameAssets.Box;
 import IngameAssets.Potion;
 import IngameAssets.PowerUp;
+import Multiplayer.GameServer;
+import Multiplayer.GameState;
+import Multiplayer.StateMonitor;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,7 +48,7 @@ public class Pyromancer extends BasicGame {
     private GameMap gameMap;
     private AppGameContainer app;
     private Player player1, player2, player3, player4;
-    
+    public static GameServer gameServer;
     //PLAYERS
     private ArrayList<Player> players; 
     private ArrayList<Integer> numberHeights; 
@@ -73,7 +76,9 @@ public class Pyromancer extends BasicGame {
     Potion movingPot;
     
     public Pyromancer(String title) {
+        
         super(title);
+
     } 
 
     @Override
@@ -87,6 +92,8 @@ public class Pyromancer extends BasicGame {
             SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
             String time = sdf.format(date);
             g.drawString(time, 700, 250); 
+            
+            System.out.println("Drawing TIME: " + seconds);
             //TEKEN FLAG + TIMER.
         }
      
@@ -97,7 +104,7 @@ public class Pyromancer extends BasicGame {
         }
         for(Player pla : players)
         {
-            pla.draw(g);
+            //pla.draw(g);
         }
         if(powerUps.size() > 0)
         {
@@ -130,6 +137,7 @@ public class Pyromancer extends BasicGame {
         }
         if(gameMap.getFlag().isPickedUp)
         {
+            System.out.println("should be picked up");
             startAndDisplayFlag = true;
         }      
     }
@@ -149,54 +157,37 @@ public class Pyromancer extends BasicGame {
     
     @Override
     public void update(GameContainer gc, int i) throws SlickException {
-        int wallLayer = tiledMap.getLayerIndex("Walls");
-        
-        if(!shouldStartScores)
-        {
-            for(Player plyr : players)
+//        int wallLayer = tiledMap.getLayerIndex("Walls");
+//        
+            if(gameMap != null)
             {
-                 if(plyr.score > 0)
-                    {
-                        shouldStartScores = true;
-                    }
-            }
-        }
-        else
-        {
-            sortPlayersPerSecond(i);
-        }
-
-        if(startAndDisplayFlag && gameMap.getFlag().isPickedUp)
-        {           
-            if(readyToAddScore(i))
-            { 
-                for(Player plyr : players)
+                if(gameMap.allPotions.size() > 0)
                 {
-                   
-                    if(plyr.hasFlag)
-                    {
-                        plyr.score += flagTime * 10;
-                    }
-                } 
-            }      
-        }
-        else
-        {
-            flagTime = 0;
-        }
-        if(shouldBoom)
-        {
-            bombTime += i;
-        }
-        if(gameMap.getFlag().isPickedUpOnce)
-        {
-            gameDuration -= i;
-        }
+                    gameMap.checkToKillPlayer();
+                }
+            }
+        
+
+            if(gameMap.getFlag().isPickedUpOnce)
+            {
+               gameDuration -= i;
+                StateMonitor.usedState.gameDurationToGo = gameDuration;
+            }
+        
+//        if(shouldBoom)
+//        {
+//            bombTime += i;
+//        }
+//        if(gameMap.getFlag().isPickedUpOnce)
+//        {
+//            gameDuration -= i;
+//        }
         time++;
         if (time > 6) {
            
-            player1.move(gc, gameMap, false);
-            player2.move(gc, gameMap, false);
+ 
+//            player1.move(gc, gameMap, false);
+//            player2.move(gc, gameMap, false);
             time = 0;
             
             if(gc.getInput().isKeyPressed(Input.KEY_ESCAPE))
@@ -307,9 +298,8 @@ public class Pyromancer extends BasicGame {
         gameDurationSeconds = 600;
         gameDuration = 1000 * gameDurationSeconds;
 
-        gameMap = new GameMap(new Image("Images/box.png"), new Image("Images/gameflag.png"), powerUps);
-        tiledMap = gameMap.getTiledMap();
-        players = new ArrayList<>();
+          players = new ArrayList<>();
+                
         numberHeights = new ArrayList<>();
         
         player1 = new Player(1, 1, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
@@ -322,35 +312,25 @@ public class Pyromancer extends BasicGame {
         player3.name = "Dennis";
         player4.name = "Tim";
         
-        player1.score = 0;
-        player2.score = 0;
-        player3.score = 0;
-        player4.score = 0;
-        
-        player1.usedControls.put("up", Input.KEY_UP);
-        player1.usedControls.put("down", Input.KEY_DOWN);
-        player1.usedControls.put("left", Input.KEY_LEFT);
-        player1.usedControls.put("right", Input.KEY_RIGHT);
-        player1.usedControls.put("placebomb", Input.KEY_SPACE);
-       
-        player2.usedControls.put("up", Input.KEY_W);
-        player2.usedControls.put("down", Input.KEY_S);
-        player2.usedControls.put("left", Input.KEY_A);
-        player2.usedControls.put("right", Input.KEY_D);
-        player2.usedControls.put("placebomb", Input.KEY_LCONTROL);
+        player1.powerUpCanKick = true;
 
         players.add(player1);
         players.add(player2);
         
+        gameMap = new GameMap(new Image("Images/box.png"), new Image("Images/gameflag.png"), powerUps, players);
+        tiledMap = gameMap.getTiledMap();
+        
         for(Player pl: players)
         {
+            pl.gMap = gameMap;
             if(pl.getCurrentSprite() == null)
             {
                 pl.setCurrentSprite(pl.getRight());
             }
         }
         
-        gameMap.players = players;
+
+
         time = 0;
         
         Font awtFont = new Font("Neou", Font.BOLD, 24);
@@ -360,6 +340,11 @@ public class Pyromancer extends BasicGame {
         stopFont = new TrueTypeFont(awtStopFont, false);
         titleScoreFont = new TrueTypeFont(awtFont, false);
         scoreFont = new TrueTypeFont(awtScoreFont, false);
+        
+        GameState gs = new GameState();
+        gs.spawnedBoxes = gameMap.getSpawnBoxes();
+     
+      
     }
 
     /**
@@ -367,13 +352,21 @@ public class Pyromancer extends BasicGame {
      */
     public static void main(String[] args) {
         try {
+            
+            
             AppGameContainer appgc;
             appgc = new AppGameContainer(new Pyromancer("Pyromancer!"));
             appgc.setDisplayMode(900, 500, false);
             appgc.start();
+            
+      
         } catch (SlickException ex) {
             ex.printStackTrace();
         }
+
+     
+           
+  
         // TODO code application logic here
     }
 }

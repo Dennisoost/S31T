@@ -6,6 +6,7 @@
 package IngameAssets;
 
 import GameAssets.Player;
+import java.io.Serializable;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Image;
 
@@ -13,7 +14,7 @@ import org.newdawn.slick.Image;
  *
  * @author TimO
  */
-public class PowerUp {
+public class PowerUp implements Serializable{
     
     public enum PowerUpType
     {
@@ -26,7 +27,7 @@ public class PowerUp {
     
     public PowerUpType type;
     public Point location;
-    public Image itemImage;
+    public transient Image itemImage;
     public boolean isPickedUp; 
     public boolean isPickedUpOnce;
     public Player player;
