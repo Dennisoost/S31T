@@ -17,6 +17,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -218,6 +219,8 @@ public class GameServer implements Observer {
         public void handlePlayerInput(String actionName, int pID) {
             if (receiveGameMap.players.get(pID) != null) {
                 Player p = receiveGameMap.players.get(pID);
+
+          
                 //LAAT PLAYER BEWEGEN MET IETS.
 //                System.out.println("should be handling some shit: action = [" + actionName + "]");
                 p.gMap = receiveGameMap;

@@ -7,6 +7,7 @@ package GameAssets;
 
 import IngameAssets.Potion;
 import Multiplayer.StateMonitor;
+import java.awt.Font;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,10 +19,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.util.Point;
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.tiled.TiledMap;
 import pyromancer.Pyromancer;
 
@@ -42,6 +47,8 @@ public class Player extends Observable implements Comparator<Player>, Serializab
     public boolean hasFlag = false;
     public boolean beingKilled = false;
     public boolean powerUpCanKick = false;
+
+    public int nameR = 0, nameG = 0, nameB = 0;
 
     public boolean isHitByBomb = false;
     public transient int maxBombCount = 2;
@@ -190,7 +197,6 @@ public class Player extends Observable implements Comparator<Player>, Serializab
     }
 
     public void placeBomb(GameMap map) {
-    
 
         System.err.println("currentBombPlacedSize?" + placedBombs.size());
         System.err.println("ayyymaxcount: " + maxBombCount);
@@ -205,10 +211,10 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                     placedBombs.add(bomb);
                 }
 
-            synchronized (gMap.allPotions) {
-                gMap.addPotionToAll(bomb);
-                StateMonitor.setBombs(gMap.allPotions);
-            }
+                synchronized (gMap.allPotions) {
+                    gMap.addPotionToAll(bomb);
+                    StateMonitor.setBombs(gMap.allPotions);
+                }
                 notifyGameMap();
 
                 Thread thr = new Thread(bomb);
@@ -222,9 +228,9 @@ public class Player extends Observable implements Comparator<Player>, Serializab
         }
     }
 
-    public synchronized  void notifyGameMap() {
-                    this.setChanged();
-                    this.notifyObservers(this);
+    public synchronized void notifyGameMap() {
+        this.setChanged();
+        this.notifyObservers(this);
     }
 
     public void isKilled() {
@@ -267,7 +273,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                                 int amountLeft = gameMap.kickIfPotion(this, foundPotion) - 1;
                                 Point newLoc = new Point(foundPotion.getLocation().getX() - amountLeft, foundPotion.getLocation().getY());
                                 movingBomb(foundPotion, newLoc, direction);
-                                
+
                             }
                         } else {
                             this.x--;
@@ -275,7 +281,6 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                         }
 
                         //Continue checking and/or move left.
-                
                     }
                     break;
                 case "right":
@@ -283,7 +288,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                     Point rightPoint = new Point(x + 1, y);
                     if (!detectCollision(rightPoint, gameMap)) {
                         //Continue checking and/or move left.
-                         gameMap.checkForPickup(rightPoint, this);
+                        gameMap.checkForPickup(rightPoint, this);
                         Potion foundPotion = isBombThere(rightPoint);
 
                         if (foundPotion != null) {
@@ -304,14 +309,14 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                     direction = moveDirection.Up;
                     Point upPoint = new Point(x, y - 1);
                     if (!detectCollision(upPoint, gameMap)) {
-                       gameMap.checkForPickup(upPoint, this);
+                        gameMap.checkForPickup(upPoint, this);
                         Potion foundPotion = isBombThere(upPoint);
 
                         if (foundPotion != null) {
                             if (powerUpCanKick) {
                                 int amountUp = gameMap.kickIfPotion(this, foundPotion) - 1;
 
-                                Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY()  - amountUp);
+                                Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() - amountUp);
                                 movingBomb(foundPotion, newLoc, direction);
 
                             }
@@ -327,14 +332,14 @@ public class Player extends Observable implements Comparator<Player>, Serializab
                     Point downPoint = new Point(x, y + 1);
                     if (!detectCollision(downPoint, gameMap)) {
                         //Continue checking and/or move left.
-                               gameMap.checkForPickup(downPoint, this);
+                        gameMap.checkForPickup(downPoint, this);
                         Potion foundPotion = isBombThere(downPoint);
 
                         if (foundPotion != null) {
                             if (powerUpCanKick) {
                                 int amountDown = gameMap.kickIfPotion(this, foundPotion) - 1;
-                               
-                                Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY()  + amountDown);
+
+                                Point newLoc = new Point(foundPotion.getLocation().getX(), foundPotion.getLocation().getY() + amountDown);
                                 movingBomb(foundPotion, newLoc, direction);
 
                             }
@@ -348,7 +353,6 @@ public class Player extends Observable implements Comparator<Player>, Serializab
             }
         }
 
-        
     }
 
     public boolean detectCollision(Point p, GameMap gm) {
@@ -367,7 +371,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
         System.out.println("currentgoal: " + currentGoal);
         Thread thr = new Thread() {
             public void run() {
-                
+
                 while (!p.getLocation().equals(currentGoal)) {
 
                     System.out.println("moving potion! loc = " + p.getLocation());
@@ -410,7 +414,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
 
                     try {
                         Thread.sleep(150);
-                      
+
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -435,13 +439,10 @@ public class Player extends Observable implements Comparator<Player>, Serializab
         return null;
     }
 
-
-
     public void waitforAnimation(Potion p) {
-        synchronized(gMap)
-        {
-                 Timer t = new Timer();
-                t.schedule(new WaitforAnim(p,gMap), 1500);
+        synchronized (gMap) {
+            Timer t = new Timer();
+            t.schedule(new WaitforAnim(p, gMap), 1500);
         }
     }
 
@@ -449,6 +450,7 @@ public class Player extends Observable implements Comparator<Player>, Serializab
 
         Potion p;
         GameMap gm;
+
         public WaitforAnim(Potion pot, GameMap gmap) {
             p = pot;
             this.gm = gmap;
@@ -460,21 +462,49 @@ public class Player extends Observable implements Comparator<Player>, Serializab
         }
 
         private void completeTask() {
-            
-            
+
             p.getExplodeAnimation().stop();
             synchronized (placedBombs) {
                 placedBombs.remove(p);
             }
 
-            synchronized(gm.allPotions)
-            {
-                 gm.allPotions.remove(p);
-                 StateMonitor.setBombs(gm.allPotions);
+            synchronized (gm.allPotions) {
+                gm.allPotions.remove(p);
+                StateMonitor.setBombs(gm.allPotions);
             }
-               
-            
+
         }
 
+    }
+
+    public void drawColorName(Graphics g, TrueTypeFont f, int drawX, int drawY, boolean isName) {
+        Graphics g1 = g;
+        g1.setColor(new Color(nameR, nameG, nameB));
+        if (isName) {
+            g1.drawString(name, drawX, drawY);
+        } else {
+            g1.drawString(String.valueOf(score), drawX, drawY);
+        }
+        g.fill(new Rectangle(setDrawValue(x) + 16, setDrawValue(y) + 16, 10, 10));
+
+    }
+
+    public void drawPowerUps(Graphics gc, Image extraBomb, Image extraRange, Image canKick) {
+
+        Graphics g1 = gc;
+        
+        g1.drawImage(extraBomb, 670, 300);
+        g1.drawString(String.valueOf(powerUpBombCount + 2), 710, 310);
+
+        g1.drawImage(canKick, 670, 350);
+        g1.drawString(String.valueOf(powerUpCanKick), 710, 360);
+
+        g1.drawImage(extraRange, 670, 400);
+        g1.drawString(String.valueOf(powerUpRangeCount + 4), 710, 410);
+
+    }
+
+    public int setDrawValue(int val) {
+        return (val * 32) + 5;
     }
 }

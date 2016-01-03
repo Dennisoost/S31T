@@ -69,8 +69,24 @@ public class GameMap extends Observable implements Observer {
         }
 
         System.out.println("gonna add observers on " + players.size() + " players");
+        for (int i = 0; i < players.size(); i++)
+        {
+            if(i == 0)
+            {
+                players.get(i).nameR = 237;
+                players.get(i).nameG = 196;
+                players.get(i).nameB = 255;           
+            }
+            else
+            {
+                players.get(i).nameR = 175;
+                players.get(i).nameG = 225;
+                players.get(i).nameB = 128;         
+            }
+        }
         for (Player plyr : players) {
             plyr.addObserver(this);
+            
         }
 
         gs = new GameServer(10007, this);
