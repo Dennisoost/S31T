@@ -69,24 +69,28 @@ public class GameMap extends Observable implements Observer {
         }
 
         System.out.println("gonna add observers on " + players.size() + " players");
-        for (int i = 0; i < players.size(); i++)
-        {
-            if(i == 0)
-            {
-                players.get(i).nameR = 237;
-                players.get(i).nameG = 196;
-                players.get(i).nameB = 255;           
-            }
-            else
-            {
-                players.get(i).nameR = 175;
-                players.get(i).nameG = 225;
-                players.get(i).nameB = 128;         
+        for (int i = 0; i < players.size(); i++) {
+            if (i == 0) {
+                players.get(i).nameR = 255;
+                players.get(i).nameG = 0;
+                players.get(i).nameB = 0;
+            } else if (i == 1) {
+                players.get(i).nameR = 0;
+                players.get(i).nameG = 255;
+                players.get(i).nameB = 0;
+            } else if (i == 2) {
+                players.get(i).nameR = 0;
+                players.get(i).nameG = 0;
+                players.get(i).nameB = 255;
+            } else if (i == 3) {
+                players.get(i).nameR = 255;
+                players.get(i).nameG = 220;
+                players.get(i).nameB = 0;
             }
         }
         for (Player plyr : players) {
             plyr.addObserver(this);
-            
+
         }
 
         gs = new GameServer(10007, this);
@@ -502,8 +506,7 @@ public class GameMap extends Observable implements Observer {
 
     public void drawBombs(Graphics g, Image BombImage, Animation BombAnim) {
 
-        if(allPotions != null)           
-        {
+        if (allPotions != null) {
             if (this.allPotions.size() > 0) {
                 for (Potion potion : this.allPotions) {
                     if (potion.getExplodeAnimation() == null) {

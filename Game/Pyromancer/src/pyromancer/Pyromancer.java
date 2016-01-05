@@ -10,19 +10,25 @@ import GameAssets.Player;
 import IngameAssets.Box;
 import IngameAssets.Potion;
 import IngameAssets.PowerUp;
+import Multiplayer.DatabaseConnection;
 import Multiplayer.GameServer;
 import Multiplayer.GameState;
 import Multiplayer.StateMonitor;
+import com.mysql.jdbc.Statement;
 import java.awt.Font;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Random;
+import static java.util.jar.Pack200.Packer.PASS;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javafx.css.StyleOrigin.USER;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
@@ -52,7 +58,9 @@ public class Pyromancer extends BasicGame {
     //PLAYERS
     private ArrayList<Player> players; 
     private ArrayList<Integer> numberHeights; 
-
+    
+    //DATABASE
+    DatabaseConnection conn;
     //OTHER
     private ArrayList<PowerUp> powerUps;
     private int x, y, time, flagTime, gameDuration, gameDurationSeconds,bombTime;
@@ -69,6 +77,7 @@ public class Pyromancer extends BasicGame {
     int respawnStart = 0;
     int respawnEnd = 3000;
     
+    boolean hasAddedToHighscore = false;
     boolean movingBomb = false;
     boolean startAndDisplayFlag = false;
     boolean shouldStartScores = false;
@@ -159,6 +168,7 @@ public class Pyromancer extends BasicGame {
     public void update(GameContainer gc, int i) throws SlickException {
 //        int wallLayer = tiledMap.getLayerIndex("Walls");
 //        
+            
             if(gameMap != null)
             {
                 if(gameMap.allPotions.size() > 0)
@@ -166,7 +176,17 @@ public class Pyromancer extends BasicGame {
                     gameMap.checkToKillPlayer();
                 }
             }
-        
+            
+            if(gameDuration < 0 && !hasAddedToHighscore)
+            {
+                try {
+                    hasAddedToHighscore = conn.updateScore(players);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Pyromancer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
 
             if(gameMap.getFlag().isPickedUpOnce)
             {
@@ -228,30 +248,6 @@ public class Pyromancer extends BasicGame {
         }   
     }
     
-    public void drawPowerUps(Player p, Graphics g) {
-
-        g.setFont(scoreFont);
-
-        if (p.powerUpBombCount > 0) {
-            g.drawImage(powerUpExtra, 670, 300);
-            g.drawString(String.valueOf(p.powerUpBombCount), 710, 310);
-        }
-
-        if (p.powerUpCanKick = true) {
-            g.drawImage(powerUpKick, 670, 350);
-            g.drawString("Active", 710, 360);
-        }
-        
-        if (p.powerUpRangeCount > 0) {
-            g.drawImage(powerUpRange, 670, 400);
-            g.drawString(String.valueOf(p.powerUpRangeCount), 710, 410);
-        }
-        
-        if (p.powerUpSpeedCount > 0) {
-            g.drawImage(powerUpSpeed, 670, 450);
-            g.drawString(String.valueOf(p.powerUpSpeedCount), 710, 460);
-        }
-    }
 
     @Override
     public void init(GameContainer gc) throws SlickException {
@@ -295,7 +291,8 @@ public class Pyromancer extends BasicGame {
         powerUps.addAll(Arrays.asList(allPowerUps));
                 
         testAnim =  setAnimations();
-        gameDurationSeconds = 600;
+        gameDurationSeconds = 300; 
+                //= 600;
         gameDuration = 1000 * gameDurationSeconds;
 
           players = new ArrayList<>();
@@ -304,18 +301,20 @@ public class Pyromancer extends BasicGame {
         
         player1 = new Player(1, 1, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
         player2 = new Player(18, 13, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
-        player3 = new Player();
-        player4 = new Player();
+        player3 = new Player(1, 13, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
+        player4 = new Player(18, 1, 32, 32, new SpriteSheet(new Image("Images/monsterSprite.png"), 32, 32),testAnim, bombImage, explosionSound);
    
-        player1.name = "Queenie";
-        player2.name = "Sjoerd";
-        player3.name = "Dennis";
-        player4.name = "Tim";
+        player1.name = "Dennis";
+        player2.name = "Tim";
+//        player3.name = "Queenie";
+//        player4.name = "Sjoerd";
         
         player1.powerUpCanKick = true;
 
         players.add(player1);
         players.add(player2);
+        players.add(player3);
+        players.add(player4);
         
         gameMap = new GameMap(new Image("Images/box.png"), new Image("Images/gameflag.png"), powerUps, players);
         tiledMap = gameMap.getTiledMap();
@@ -329,7 +328,7 @@ public class Pyromancer extends BasicGame {
             }
         }
         
-
+        conn = new DatabaseConnection();
 
         time = 0;
         
@@ -369,4 +368,6 @@ public class Pyromancer extends BasicGame {
   
         // TODO code application logic here
     }
+    
+  
 }
