@@ -15,6 +15,8 @@ import portal.User;
  * @author Dennis
  */
 public class GameRoom implements Serializable{
+    private String ipadress;
+    private String port;
     private String game;
     private int playercount;
     private ArrayList<String> playerlist;
@@ -40,5 +42,9 @@ public class GameRoom implements Serializable{
     public int getPlayerCount()
     {
         return playercount;
+    }
+    public ArrayList<String> getPlayers()
+    {
+        return playerlist;
     }
 }

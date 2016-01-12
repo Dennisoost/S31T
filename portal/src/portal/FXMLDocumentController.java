@@ -94,9 +94,13 @@ public class FXMLDocumentController implements Initializable {
         //hide this current window
 
         if (dbconn.checkLogin(tbUsername.getText(), tbPassword.getText())) {
+            System.out.println("1");
             User.username = tbUsername.getText();
+            System.out.println("2");
             Stage thisStage = (Stage) btnRegister.getScene().getWindow();
+           System.out.println("3");
             thisStage.close();
+            System.out.println("4");
             showStage("FXMLPortal.fxml");
         } else {
             Alert alert = new Alert(AlertType.WARNING);

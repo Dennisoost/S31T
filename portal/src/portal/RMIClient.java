@@ -118,8 +118,8 @@ public class RMIClient {
         return null;
     }
 
-    public boolean addGameRoom(String name) throws RemoteException {
-        if (gameroomManager.addGameroom(name)) {
+    public boolean addGameRoom(String name, String ipadress) throws RemoteException {
+        if (gameroomManager.addGameroom(name, ipadress)) {
             return true;
         }
         return false;

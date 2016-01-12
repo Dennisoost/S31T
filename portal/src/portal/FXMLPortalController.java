@@ -22,6 +22,9 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import Chat.ClientMessenger;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Random;
@@ -147,14 +150,12 @@ public class FXMLPortalController implements Initializable, IChatClient {
         }
 
         //TODO
-         if (rmiClient.joinGameRoom(selectedItem)) {
+        if (rmiClient.joinGameRoom(selectedItem)) {
             showWarning("Game joined!");
             refreshListview();
+        } else {
+            showWarning("Game is full!");
         }
-         else
-         {
-             showWarning("Game is full!");
-         }
     }
 
     @FXML
@@ -163,11 +164,12 @@ public class FXMLPortalController implements Initializable, IChatClient {
         GameRoom gr = new GameRoom("Gameroom" + Integer.toString(grc));
         gameroomList.add(gr);
         updateGameList();*/
+      //  System.out.println(getMyIP());
 
         Random rand = new Random();
         int n = rand.nextInt(50) + 1;
 
-        if (!rmiClient.addGameRoom("room" + n)) {
+        if (!rmiClient.addGameRoom("room" + n, getMyIP())) {
             showWarning("Gameroom name already exists");
         } else {
             showWarning("gameroom" + n + " created");
@@ -280,5 +282,16 @@ public class FXMLPortalController implements Initializable, IChatClient {
     @FXML
     private void selectGame3(MouseEvent event) {
         lblGame.setText("Bomberman3");
+    }
+
+    private String getMyIP() throws MalformedURLException, IOException {
+        URL whatismyip = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = new BufferedReader(new InputStreamReader(
+                whatismyip.openStream()));
+
+        String ip = in.readLine(); //you get the IP as a String
+        System.out.println(ip);
+        
+        return ip;
     }
 }

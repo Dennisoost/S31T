@@ -25,7 +25,7 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
         gameroomList = new ArrayList<>();
     }
 
-    public boolean addGameroom(String gamename) throws RemoteException {
+    public boolean addGameroom(String gamename, String ipadress) throws RemoteException {
         for (GameRoom gr : gameroomList) {
             if (gr.getGame().equals(gamename)) {
                 //Gamename already exists

@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public interface IGameroomManager extends Remote {
 
-    public boolean addGameroom(String gamename) throws RemoteException;
+    public boolean addGameroom(String gamename, String ipadress) throws RemoteException;
 
     public boolean removeGameroom(String gamename) throws RemoteException;
 

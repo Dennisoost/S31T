@@ -14,12 +14,13 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-
 /**
  *
  * @author dennis
  */
 public class Server {
+    
+
     // Set port number
     private static final int portNumber = 1099;
 
@@ -32,6 +33,8 @@ public class Server {
 
     // Constructor
     public Server() {
+
+       // System.setProperty("java.rmi.server.hostname", "145.144.240.160");
 
         // Print port number for registry
         System.out.println("Server: Port number " + portNumber);
@@ -58,11 +61,15 @@ public class Server {
 
         // Bind student administration using registry
         try {
+           // System.setProperty("java.rmi.server.hostname", "145.144.240.160");
+
             registry.rebind(bindingName, gameroomManager);
         } catch (RemoteException ex) {
             System.out.println("Server: Cannot bind student administration");
             System.out.println("Server: RemoteException: " + ex.getMessage());
         }
+        System.setProperty("java.rmi.server.hostname", "145.144.240.160");
+
     }
 
     // Print IP addresses and network interfaces
@@ -108,6 +115,7 @@ public class Server {
 
         // Print IP addresses and network interfaces
         printIPAddresses();
+      //  System.setProperty("java.rmi.server.hostname", "145.144.240.160");
 
         // Create server
         Server server = new Server();
