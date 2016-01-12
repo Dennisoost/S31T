@@ -78,6 +78,7 @@ public class PyromancerClient extends BasicGame {
     float t = 0;
     Potion movingPot;
 
+    int thisPlayerID = 0;
     public GameClient gameClient;
     private Animation bombAnimation;
 
@@ -89,6 +90,7 @@ public class PyromancerClient extends BasicGame {
     public void render(GameContainer gc, Graphics g) throws SlickException {
         tiledMap.render(5, 5);
 
+        g.setFont(titleScoreFont);
          if(startAndDisplayFlag)
         { 
             int seconds = gameDuration / 1000;
@@ -96,6 +98,7 @@ public class PyromancerClient extends BasicGame {
             SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
             String time = sdf.format(date);
             g.drawString(time, 700, 250); 
+            
             //TEKEN FLAG + TIMER.
         }
         
@@ -122,10 +125,7 @@ public class PyromancerClient extends BasicGame {
             }
         }
         
-        if(player1 != null)
-        {
-            drawPowerUps(player1, g);
-        }
+      
 
         if (powerUps != null) {
             for (PowerUp power : powerUps) {
@@ -158,12 +158,20 @@ public class PyromancerClient extends BasicGame {
             g.drawString(number, 670, yVal);
             numberHeights.add(yVal);
         }
-        for (Player p : players) {
-            gc.getGraphics().drawString(players.get(players.indexOf(p)).name, 695, numberHeights.get(players.indexOf(p)));
-            gc.getGraphics().drawString(String.valueOf(players.get(players.indexOf(p)).score), 810, numberHeights.get(players.indexOf(p)));
+        for (Player p : players) 
+        {
+            if(players.indexOf(p)== 0)
+            {
+                p.drawPowerUps(g, powerUpExtra, powerUpRange, powerUpKick);
+            }
+            
+            p.drawColorName(g, scoreFont, 695, numberHeights.get(players.indexOf(p)), true);
+            p.drawColorName(g, scoreFont, 810, numberHeights.get(players.indexOf(p)), false);
+            
+            
         }
         
-
+        g.setColor(Color.white);
         if (gameMap != null) 
         {
             if(gameMap.allPotions != null)
@@ -330,7 +338,7 @@ public class PyromancerClient extends BasicGame {
     }
 
     public void handleAction(String buttonPress) {
-        int playID = 1;
+        int playID = 0;
         String handleString = buttonPress + "|" + playID;
 
         if (gameClient != null) {
@@ -590,7 +598,7 @@ public class PyromancerClient extends BasicGame {
         stopFont = new TrueTypeFont(awtStopFont, false);
         titleScoreFont = new TrueTypeFont(awtFont, false);
         scoreFont = new TrueTypeFont(awtScoreFont, false);
-        gameClient = new GameClient(10007, "145.93.72.169");
+        gameClient = new GameClient(10007, "127.0.0.1");
 
     }
 
