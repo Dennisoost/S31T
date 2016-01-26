@@ -199,6 +199,26 @@ public class DatabaseConnection {
         return false;
     }
     
+    public boolean RemoveTournament(String name) throws ClassNotFoundException, SQLException{
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+            stmt = (Statement) conn.createStatement();
+            String insert = "DELETE FROM tournament WHERE name=" + name; 
+            stmt.executeUpdate(insert);
+        } 
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseConnection.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            //STEP 6: Clean-up environment
+            stmt.close();
+            conn.close();
+        }
+        return false;
+    }
+    
     public ArrayList<String> GetTournamentInfo(String tournamentName) throws ClassNotFoundException, SQLException {
         Connection conn = null;
         Statement stmt = null;
@@ -244,7 +264,6 @@ public class DatabaseConnection {
             ResultSet rs = stmt.executeQuery(query);
             HashMap<String, String> map = new HashMap<>();
             while (rs.next()) {
-                ArrayList<String> row = new ArrayList<>();
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i += 2) {
                     //Iterate Column
                     map.put(rs.getString(i), rs.getString(i + 1));
@@ -369,37 +388,6 @@ public class DatabaseConnection {
         }
         return 0;
     }
-    
-    /*public boolean updateScore(ArrayList<Player> players) throws ClassNotFoundException, SQLException{        Connection conn = null;
-        Statement stmtExecute = null;
-        Statement stmtUpdate = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
-            stmtExecute = (Statement) conn.createStatement();
-            stmtUpdate = (Statement) conn.createStatement();
-            
-            for(Player p : players){
-                String getScoreQuery = "SELECT SCORE FROM USER WHERE USERNAME = '" + p.name + "'";
-                ResultSet rs = stmtExecute.executeQuery(getScoreQuery);
-                int totalScore;
-                if(rs.next()){
-                    totalScore = rs.getInt("SCORE") + p.score;
-                }
-                String updateScoreQuery = "UPDATE USER SET SCORE=" + totalScore + " WHERE USERNAME = '" + p.name + "'"; 
-                stmtUpdate.executeUpdate(updateScoreQuery);
-            }
-        } 
-        catch (SQLException ex) {
-            Logger.getLogger(DatabaseConnection.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            //STEP 6: Clean-up environment
-            stmtExecute.close();
-            stmtUpdate.close();
-            conn.close();
-        }
-        return false;
-    }*/
     
     public ArrayList<String> getLeaderboard() throws ClassNotFoundException, SQLException{
         Connection conn = null;
