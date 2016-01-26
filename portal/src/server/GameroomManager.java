@@ -93,6 +93,13 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
         bp.inform(this, gamename, gameroom.getPlayersReady(), playerlist);
     }
 
+    public int getPlayersReady(String gamename) {
+        GameRoom gameroom = searchForGameroom(gamename);
+        int playersready = gameroom.getPlayersReady();
+        System.out.println(playersready);
+        return playersready;
+    }
+
     @Override
     public void addListener(RemotePropertyListener rl, String property) throws RemoteException {
         bp.addProperty(property);

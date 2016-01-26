@@ -91,8 +91,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
         grc = 0;
 
         btnSend.setDefaultButton(true);
-       // cm = new ClientMessenger("145.144.240.160", 1500, User.username, this);
-       // cm.startServer();
+        cm = new ClientMessenger("127.0.0.1", 1500, User.username, this);
+        cm.startServer();
 
         /*try {
             rmiClient = new RMIClient("127.0.0.1", 1099);
@@ -152,6 +152,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
             refreshListview();
             User.gameroomName = selectedItem;
             showStage("FXMLLobby.fxml");
+            Stage thisStage = (Stage) btnCreateGame.getScene().getWindow();
+            thisStage.close();
             /*ProcessBuilder pb = new ProcessBuilder("C:\\Program Files\\Java\\jdk1.8.0_65\\jre\\bin\\java.exe", "-jar", "ClientOneJar.jar");
             pb.directory(new File("C:\\Users\\Gebruiker\\Desktop\\S3\\PTS\\S31T\\Game\\Pyromancer"));
             Process p = pb.start();
@@ -180,6 +182,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
             refreshListview();
             User.gameroomName = "gameroom" + n;
             showStage("FXMLLobby.fxml");
+            Stage thisStage = (Stage) btnCreateGame.getScene().getWindow();
+            thisStage.close();
         }
         //TODO 
         //REFRESH LISTVIEW

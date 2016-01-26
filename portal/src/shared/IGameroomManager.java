@@ -29,7 +29,9 @@ public interface IGameroomManager extends Remote {
     public void addListener(RemotePropertyListener rl, String property) throws RemoteException;
 
     public void removeListener(RemotePropertyListener rl, String property) throws RemoteException;
-    
+
     public void addPlayerToReady(String gamename) throws RemoteException;
+
+    public int getPlayersReady(String gamename) throws RemoteException;
 
     }

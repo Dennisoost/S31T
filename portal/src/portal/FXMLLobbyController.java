@@ -7,6 +7,7 @@ package portal;
 
 import fontys.observer.RemotePropertyListener;
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.Naming;
@@ -19,13 +20,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import server.GameroomManager;
 import shared.GameRoom;
 import shared.IGameroomManager;
@@ -79,9 +86,12 @@ public class FXMLLobbyController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         gr = null;
         IGameroomManager gm = null;
+        Listener listener;
         try {
             gm = (IGameroomManager) Naming.lookup("game");
-            gm.addListener(new Listener(), User.gameroomName);
+            listener = new Listener();
+            gm.addListener(listener, User.gameroomName);
+            playersready = gm.getPlayersReady(User.gameroomName);
         } catch (NotBoundException ex) {
             Logger.getLogger(FXMLLobbyController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MalformedURLException ex) {
@@ -127,8 +137,29 @@ public class FXMLLobbyController implements Initializable {
     }
 
     @FXML
-    private void clickStart(ActionEvent event) {
+    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException {
         //Start game
+        closeGame();
+    }
+
+    private void closeGame() throws NotBoundException, MalformedURLException, RemoteException {
+        gm = (IGameroomManager) Naming.lookup("game");
+        gm.removeGameroom(User.gameroomName);
+        showStage("FXMLPortal.fxml");
+    }
+
+    public void showStage(String fxmlfile) {
+        Parent root;
+        try {
+            root = FXMLLoader.load(getClass().getResource(fxmlfile));
+            Stage stage = new Stage();
+            Scene sc = new Scene(root);
+            stage.setScene(sc);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class Listener extends UnicastRemoteObject implements RemotePropertyListener {
