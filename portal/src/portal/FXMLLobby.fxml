@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="402.0" prefWidth="395.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="portal.FXMLLobbyController">
+   <children>
+      <Button fx:id="btnReady" layoutX="19.0" layoutY="119.0" mnemonicParsing="false" onAction="#clickReady" prefHeight="32.0" prefWidth="59.0" text="Ready" />
+      <Circle fx:id="imgPlayer1" fill="DODGERBLUE" layoutX="47.0" layoutY="47.0" radius="28.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="imgPlayer2" fill="#ff1f1f" layoutX="144.0" layoutY="47.0" radius="28.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="imgPlayer4" fill="#ff21b2" layoutX="345.0" layoutY="46.0" radius="28.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="imgPlayer3" fill="#1fff3a" layoutX="245.0" layoutY="47.0" radius="28.0" stroke="BLACK" strokeType="INSIDE" />
+      <Label fx:id="lblPlayer1" layoutX="28.0" layoutY="89.0" text="Label" />
+      <Label fx:id="lblPlayer2" layoutX="126.0" layoutY="89.0" text="Label" />
+      <Label fx:id="lblPlayer3" layoutX="227.0" layoutY="89.0" text="Label" />
+      <Label fx:id="lblPlayer4" layoutX="327.0" layoutY="89.0" text="Label" />
+      <Button fx:id="btnStart" disable="true" layoutX="91.0" layoutY="119.0" mnemonicParsing="false" onAction="#clickStart" prefHeight="32.0" prefWidth="50.0" text="Start" />
+      <TextArea fx:id="taLobbyChat" layoutX="17.0" layoutY="159.0" prefHeight="198.0" prefWidth="365.0" />
+      <TextField fx:id="tbLobbyChat" layoutX="17.0" layoutY="363.0" prefHeight="25.0" prefWidth="365.0" />
+      <Label layoutX="252.0" layoutY="128.0" text="Players ready:" />
+      <Label fx:id="lblPlayersReady" layoutX="358.0" layoutY="128.0" text="0" />
+   </children>
+</Pane>

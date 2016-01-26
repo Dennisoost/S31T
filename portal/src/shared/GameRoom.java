@@ -19,12 +19,14 @@ public class GameRoom implements Serializable{
     private String port;
     private String game;
     private int playercount;
+    private int playersReady;
     private ArrayList<String> playerlist;
     
     public GameRoom(String game)
     {
         this.game = game;
-        playercount++;
+        playercount = 0;
+        playersReady = 0;
         playerlist = new ArrayList<>();
     }
     public String getGame()
@@ -38,6 +40,18 @@ public class GameRoom implements Serializable{
             return true;
         }
         return false;
+    }
+    public int getPlayersReady()
+    {
+        return playersReady;
+    }
+    public void addPlayerReady()
+    {
+        playersReady++;
+    }
+    public void removePlayerReady()
+    {
+        playersReady--;
     }
     public int getPlayerCount()
     {

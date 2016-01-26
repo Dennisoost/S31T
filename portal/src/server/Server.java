@@ -34,7 +34,7 @@ public class Server {
     // Constructor
     public Server() {
 
-       // System.setProperty("java.rmi.server.hostname", "145.144.240.160");
+        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
 
         // Print port number for registry
         System.out.println("Server: Port number " + portNumber);
@@ -68,7 +68,7 @@ public class Server {
             System.out.println("Server: Cannot bind student administration");
             System.out.println("Server: RemoteException: " + ex.getMessage());
         }
-        System.setProperty("java.rmi.server.hostname", "145.144.240.160");
+        //System.setProperty("java.rmi.server.hostname", "145.144.240.160");
 
     }
 

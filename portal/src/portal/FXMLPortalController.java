@@ -91,8 +91,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
         grc = 0;
 
         btnSend.setDefaultButton(true);
-        cm = new ClientMessenger("145.144.240.160", 1500, User.username, this);
-        cm.startServer();
+       // cm = new ClientMessenger("145.144.240.160", 1500, User.username, this);
+       // cm.startServer();
 
         /*try {
             rmiClient = new RMIClient("127.0.0.1", 1099);
@@ -118,7 +118,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
             tableViewGame.setItems(gameRoomList);
          */
         try {
-            rmiClient = new RMIClient("145.144.240.160", 1099);
+            rmiClient = new RMIClient("127.0.0.1", 1099);
             gameRoomList = FXCollections.observableArrayList(rmiClient.getGamerooms());
         } catch (RemoteException ex) {
             Logger.getLogger(FXMLPortalController.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,10 +150,12 @@ public class FXMLPortalController implements Initializable, IChatClient {
         if (rmiClient.joinGameRoom(selectedItem)) {
             showWarning("Game joined!");
             refreshListview();
-            ProcessBuilder pb = new ProcessBuilder("C:\\Program Files\\Java\\jdk1.8.0_65\\jre\\bin\\java.exe", "-jar", "ClientOneJar.jar");
+            User.gameroomName = selectedItem;
+            showStage("FXMLLobby.fxml");
+            /*ProcessBuilder pb = new ProcessBuilder("C:\\Program Files\\Java\\jdk1.8.0_65\\jre\\bin\\java.exe", "-jar", "ClientOneJar.jar");
             pb.directory(new File("C:\\Users\\Gebruiker\\Desktop\\S3\\PTS\\S31T\\Game\\Pyromancer"));
             Process p = pb.start();
-            int exitVal = p.exitValue();
+            int exitVal = p.exitValue();*/
         } else {
             showWarning("Game is full!");
         }
@@ -166,16 +168,18 @@ public class FXMLPortalController implements Initializable, IChatClient {
         GameRoom gr = new GameRoom("Gameroom" + Integer.toString(grc));
         gameroomList.add(gr);
         updateGameList();*/
-      //  System.out.println(getMyIP());
+        //  System.out.println(getMyIP());
 
         Random rand = new Random();
         int n = rand.nextInt(50) + 1;
 
-        if (!rmiClient.addGameRoom("room" + n, getMyIP())) {
+        if (!rmiClient.addGameRoom("gameroom" + n, getMyIP(), User.username)) {
             showWarning("Gameroom name already exists");
         } else {
-            showWarning("gameroom" + n + " created");
+            //showWarning("gameroom" + n + " created");
             refreshListview();
+            User.gameroomName = "gameroom" + n;
+            showStage("FXMLLobby.fxml");
         }
         //TODO 
         //REFRESH LISTVIEW
@@ -183,7 +187,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
         data.add(new Gameroom2(User.username + "'s room"));
         tableViewGame.setItems(data);*/
 
-        /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
+ /*Process p = Runtime.getRuntime().exec("java -jar C:\\Users\\Dennis\\Desktop\\MovingBallsFX\\dist\\MovingBallsFX.jar");
         
          p.waitFor();
          int exitVal = p.exitValue();*/
@@ -247,7 +251,6 @@ public class FXMLPortalController implements Initializable, IChatClient {
             Scene sc = new Scene(root);
             stage.setScene(sc);
             stage.show();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -293,7 +296,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
 
         String ip = in.readLine(); //you get the IP as a String
         System.out.println(ip);
-        
+
         return ip;
     }
 }

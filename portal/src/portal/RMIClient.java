@@ -5,6 +5,7 @@
  */
 package portal;
 
+import fontys.observer.RemotePropertyListener;
 import java.util.ArrayList;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -118,19 +119,18 @@ public class RMIClient {
         return null;
     }
 
-    public boolean addGameRoom(String name, String ipadress) throws RemoteException {
-        if (gameroomManager.addGameroom(name, ipadress)) {
+    public boolean addGameRoom(String gamename, String ipadress, String username) throws RemoteException {
+        if (gameroomManager.addGameroom(gamename, ipadress, username)) {
             return true;
         }
         return false;
     }
 
     public boolean joinGameRoom(String gamename) throws RemoteException {
+
         ArrayList<GameRoom> gamerooms = gameroomManager.getGamerooms();
         for (GameRoom gr : gamerooms) {
             if (gr.getGame().equals(gamename)) {
-                //TODO
-                
                 if (gameroomManager.joinGameroom(gamename, User.username)) {
                     return true;
                 }
@@ -139,6 +139,17 @@ public class RMIClient {
         return false;
     }
 
+    public GameRoom getGameRoomInfo(String gamename) throws RemoteException
+    {
+        ArrayList<GameRoom> gamerooms = gameroomManager.getGamerooms();
+        for(GameRoom gr : gamerooms) {
+            if(gr.getGame().equals(gamename))
+            {
+                return gr;
+            }
+        }
+        return null;
+    }
     // Main method
     /*public static void main(String[] args) throws RemoteException {
         // Welcome message

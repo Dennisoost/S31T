@@ -5,6 +5,9 @@
  */
 package server;
 
+import fontys.observer.BasicPublisher;
+import fontys.observer.RemotePropertyListener;
+import fontys.observer.RemotePublisher;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -17,15 +20,17 @@ import shared.IGameroomManager;
  *
  * @author dennis
  */
-public class GameroomManager extends UnicastRemoteObject implements IGameroomManager {
+public class GameroomManager extends UnicastRemoteObject implements IGameroomManager, RemotePublisher {
 
     private ArrayList<GameRoom> gameroomList;
+    BasicPublisher bp;
 
     public GameroomManager() throws RemoteException {
         gameroomList = new ArrayList<>();
+        bp = new BasicPublisher(new String[]{});
     }
 
-    public boolean addGameroom(String gamename, String ipadress) throws RemoteException {
+    public boolean addGameroom(String gamename, String ipadress, String username) throws RemoteException {
         for (GameRoom gr : gameroomList) {
             if (gr.getGame().equals(gamename)) {
                 //Gamename already exists
@@ -35,6 +40,7 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
 
         try {
             gameroomList.add(new GameRoom(gamename));
+            this.searchForGameroom(gamename).joinRoom(username);
         } catch (IllegalArgumentException ex) {
             System.out.println(ex);
             return false;
@@ -63,6 +69,8 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
 
     public boolean joinGameroom(String gamename, String username) {
         if (searchForGameroom(gamename).joinRoom(username)) {
+            ArrayList<String> playerlist = searchForGameroom(gamename).getPlayers();
+            bp.inform(this, gamename, searchForGameroom(gamename).getPlayersReady(), playerlist);
             return true;
         }
         return false;
@@ -76,4 +84,24 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
         }
         return null;
     }
+
+    @Override
+    public void addPlayerToReady(String gamename) {
+        GameRoom gameroom = searchForGameroom(gamename);
+        gameroom.addPlayerReady();
+        ArrayList<String> playerlist = searchForGameroom(gamename).getPlayers();
+        bp.inform(this, gamename, gameroom.getPlayersReady(), playerlist);
+    }
+
+    @Override
+    public void addListener(RemotePropertyListener rl, String property) throws RemoteException {
+        bp.addProperty(property);
+        bp.addListener(rl, property);
+    }
+
+    @Override
+    public void removeListener(RemotePropertyListener rl, String property) throws RemoteException {
+        bp.removeListener(rl, property);
+    }
+
 }
