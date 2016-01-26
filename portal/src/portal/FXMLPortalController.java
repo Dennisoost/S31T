@@ -175,6 +175,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
         Random rand = new Random();
         int n = rand.nextInt(50) + 1;
 
+        System.out.println(getMyIP());
         if (!rmiClient.addGameRoom("gameroom" + n, getMyIP(), User.username)) {
             showWarning("Gameroom name already exists");
         } else {

@@ -22,10 +22,11 @@ public class GameRoom implements Serializable{
     private int playersReady;
     private ArrayList<String> playerlist;
     
-    public GameRoom(String game)
+    public GameRoom(String game, String ipadress, String Username)
     {
         this.game = game;
         playercount = 0;
+        this.ipadress = ipadress;
         playersReady = 0;
         playerlist = new ArrayList<>();
     }
@@ -60,5 +61,9 @@ public class GameRoom implements Serializable{
     public ArrayList<String> getPlayers()
     {
         return playerlist;
+    }
+    public String getIpAdress()
+    {
+        return ipadress;
     }
 }

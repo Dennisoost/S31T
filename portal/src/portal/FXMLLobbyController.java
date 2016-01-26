@@ -7,6 +7,7 @@ package portal;
 
 import fontys.observer.RemotePropertyListener;
 import java.beans.PropertyChangeEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,12 +16,13 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -32,8 +34,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import server.GameroomManager;
 import shared.GameRoom;
 import shared.IGameroomManager;
 
@@ -137,8 +137,48 @@ public class FXMLLobbyController implements Initializable {
     }
 
     @FXML
-    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException {
+    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException, IOException {
         //Start game
+        
+        
+        int usedID = players.indexOf(User.username);
+
+        gm = (IGameroomManager) Naming.lookup("game");
+        String ip = gm.getIpadressGameroom(User.gameroomName);
+        
+        System.out.println("IP: " + ip);
+        System.out.println("usedID: " + usedID);
+        
+        
+        
+        //SERVER
+              ArrayList<String> serverparams = new ArrayList<>();
+              serverparams.addAll(Arrays.asList(new String[]{"java",
+                        "-cp",
+                        "FinalServer.jar",
+                        "Multiplayer.PyromancerServer"}));
+              
+              
+             serverparams.addAll(players);
+        ProcessBuilder serverBuilder  = new ProcessBuilder(serverparams).inheritIO();
+        serverBuilder.directory(new File("PyromancerGame2"));
+        serverBuilder.start();
+        
+        //CLIENT.
+        List<String> params
+                = java.util.Arrays.asList(
+                        "java",
+                        "-cp",
+                        "FinalClient.jar",
+                        "Multiplayer.PyromancerClient",
+                        String.valueOf(usedID),
+                        ip,
+                        String.valueOf(10007));
+        ProcessBuilder b = new ProcessBuilder(params).inheritIO();
+        b.directory(new File("PyromancerGame2"));
+        b.start();
+        
+        //int exitVal = p.exitValue();
         closeGame();
     }
 
