@@ -16,12 +16,13 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -33,8 +34,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import server.GameroomManager;
 import shared.GameRoom;
 import shared.IGameroomManager;
 
@@ -77,6 +76,7 @@ public class FXMLLobbyController implements Initializable {
     GameRoom gr;
     IGameroomManager gm;
     int playersready;
+    int myUserID;
     @FXML
     private Label lblPlayersReady;
 
@@ -108,6 +108,7 @@ public class FXMLLobbyController implements Initializable {
 
         playersready = 0;
         players = gr.getPlayers();
+
         int size = players.size();
         refreshPlayers();
 
@@ -137,23 +138,54 @@ public class FXMLLobbyController implements Initializable {
     }
 
     @FXML
-    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException, IOException, InterruptedException {
+    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException, IOException {
         //Start game
 
-        /* ProcessBuilder pb = new ProcessBuilder("C:\\Program Files\\Java\\jdk1.8.0_65\\jre\\bin\\java.exe", "-jar", "ClientOneJar.jar");
-        pb.directory(new File("C:\\Users\\Gebruiker\\Desktop\\S3\\PTS\\S31T\\Game\\Pyromancer"));
-        Process p = pb.start();
-        int exitVal = p.exitValue();*/
-        Process proc = Runtime.getRuntime().exec("java -cp /home/dennis/PyromancerGam/FinalClient.jar Multiplayer.PyromancerClient 0 169.254.115.233 10007");
+        int usedID = players.indexOf(User.username);
 
-        proc.waitFor();
-        int exitValue = proc.exitValue();
+        gm = (IGameroomManager) Naming.lookup("game");
+        String ip = gm.getIpadressGameroom(User.gameroomName);
+
+        System.out.println("IP: " + ip);
+        System.out.println("usedID: " + usedID);
+
+        //SERVER
+        ArrayList<String> serverparams = new ArrayList<>();
+        serverparams.addAll(Arrays.asList(new String[]{"java",
+            "-cp",
+            "FinalServer.jar",
+            "Multiplayer.PyromancerServer"}));
+
+        serverparams.addAll(players);
+        ProcessBuilder serverBuilder = new ProcessBuilder(serverparams).inheritIO();
+        serverBuilder.directory(new File("PyromancerGame2"));
+        serverBuilder.start();
+
+        //CLIENT.
+        /*
+        List<String> params
+                = java.util.Arrays.asList(
+                        "java",
+                        "-cp",
+                        "FinalClient.jar",
+                        "Multiplayer.PyromancerClient",
+                        String.valueOf(usedID),
+                        ip,
+                        String.valueOf(10007));
+        ProcessBuilder b = new ProcessBuilder(params).inheritIO();
+        b.directory(new File("PyromancerGame2"));
+        b.start();*/
+        gm.startGame(User.gameroomName);
+
+        //int exitVal = p.exitValue();
         closeGame();
     }
 
     private void closeGame() throws NotBoundException, MalformedURLException, RemoteException {
         gm = (IGameroomManager) Naming.lookup("game");
         gm.removeGameroom(User.gameroomName);
+        Stage thisStage = (Stage) btnReady.getScene().getWindow();
+        thisStage.close();
         showStage("FXMLPortal.fxml");
     }
 
@@ -180,14 +212,44 @@ public class FXMLLobbyController implements Initializable {
         @Override
         public void propertyChange(PropertyChangeEvent pce) throws RemoteException {
             ArrayList<String> playerList = (ArrayList<String>) pce.getNewValue();
-            playersready = (int) pce.getOldValue();
-            players = playerList;
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    refreshPlayers();
+            if (playerList.get(0).equals("gamestarted")) {
+                try {
+                    gm = (IGameroomManager) Naming.lookup("game");
+                    String ip = gm.getIpadressGameroom(User.gameroomName);
+
+                    GameRoom gameroom = gm.searchForGameroom(User.gameroomName);
+                    String id = Integer.toString(gameroom.getPlayers().indexOf(User.username));
+
+                    List<String> params
+                            = java.util.Arrays.asList(
+                                    "java",
+                                    "-cp",
+                                    "FinalClient.jar",
+                                    "Multiplayer.PyromancerClient",
+                                    String.valueOf(id),
+                                    ip,
+                                    String.valueOf(10007));
+                    ProcessBuilder b = new ProcessBuilder(params).inheritIO();
+                    b.directory(new File("PyromancerGame2"));
+                    b.start();
+                } catch (NotBoundException ex) {
+                    Logger.getLogger(FXMLLobbyController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(FXMLLobbyController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(FXMLLobbyController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            });
+
+            } else {
+                playersready = (int) pce.getOldValue();
+                players = playerList;
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshPlayers();
+                    }
+                });
+            }
         }
     }
 }

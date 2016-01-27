@@ -39,7 +39,7 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
         }
 
         try {
-            gameroomList.add(new GameRoom(gamename));
+            gameroomList.add(new GameRoom(gamename, ipadress, username));
             this.searchForGameroom(gamename).joinRoom(username);
         } catch (IllegalArgumentException ex) {
             System.out.println(ex);
@@ -100,6 +100,17 @@ public class GameroomManager extends UnicastRemoteObject implements IGameroomMan
         return playersready;
     }
 
+    public String getIpadressGameroom(String gamename) {
+        GameRoom gameroom = searchForGameroom(gamename);
+        String ip = gameroom.getIpAdress();
+        return ip;
+    }
+    
+    public void startGame(String gamename) {
+        ArrayList<String> list = new ArrayList();
+        list.add("gamestarted");
+        bp.inform(this, gamename, gamename, list);
+    }
     @Override
     public void addListener(RemotePropertyListener rl, String property) throws RemoteException {
         bp.addProperty(property);

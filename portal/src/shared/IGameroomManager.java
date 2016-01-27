@@ -34,4 +34,7 @@ public interface IGameroomManager extends Remote {
 
     public int getPlayersReady(String gamename) throws RemoteException;
 
-    }
+    public String getIpadressGameroom(String gamename) throws RemoteException;
+    
+    public void startGame(String gamename) throws RemoteException;
+}

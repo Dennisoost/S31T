@@ -26,7 +26,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.io.File;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +41,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import shared.IGameroomManager;
 
 /**
  * FXML Controller class
@@ -84,6 +88,8 @@ public class FXMLPortalController implements Initializable, IChatClient {
     private ObservableList<GameRoom> gameRoomList;
     @FXML
     private ListView<String> lvGames;
+
+    IGameroomManager gm;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -175,6 +181,7 @@ public class FXMLPortalController implements Initializable, IChatClient {
         Random rand = new Random();
         int n = rand.nextInt(50) + 1;
 
+        System.out.println(getMyIP());
         if (!rmiClient.addGameRoom("gameroom" + n, getMyIP(), User.username)) {
             showWarning("Gameroom name already exists");
         } else {
@@ -219,11 +226,28 @@ public class FXMLPortalController implements Initializable, IChatClient {
     }
 
     @FXML
-    private void spectateGame(MouseEvent event) {
+    private void spectateGame(MouseEvent event) throws IOException, NotBoundException {
         Stage thisStage = (Stage) btnSpecGame.getScene().getWindow();
         // do what you have to do
+        String selectedItem = lvGames.getSelectionModel().getSelectedItem();
+        gm = (IGameroomManager) Naming.lookup("game");
+        String ip = gm.getIpadressGameroom(User.gameroomName);
+
+        List<String> params
+                = java.util.Arrays.asList(
+                        "java",
+                        "-cp",
+                        "FinalClient.jar",
+                        "Multiplayer.PyromancerClient",
+                        String.valueOf(4),
+                        ip,
+                        String.valueOf(10007));
+        ProcessBuilder b = new ProcessBuilder(params).inheritIO();
+        b.directory(new File("PyromancerGame2"));
+        b.start();
+
         thisStage.close();
-        //show game lobby
+        showStage("FXMLPortal.fxml");
     }
 
     @FXML
