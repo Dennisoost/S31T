@@ -58,7 +58,7 @@ public class FXMLRegisterController implements Initializable {
         if (checkFields(tbUsername.getText(), tbEmail.getText(), tbPassword.getText(), tbVPassword.getText())) {
             if(dbconn.addUser(tbUsername.getText(), tbPassword.getText(), tbEmail.getText()))
             {
-            showStage("FXMLPortal.fxml");
+            showStage("FXMLDocument.fxml");
             Stage thisStage = (Stage) btnRegister.getScene().getWindow();
             // do what you have to do
             thisStage.close();
