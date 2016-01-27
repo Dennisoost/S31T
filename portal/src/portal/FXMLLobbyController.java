@@ -7,6 +7,7 @@ package portal;
 
 import fontys.observer.RemotePropertyListener;
 import java.beans.PropertyChangeEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -130,15 +131,23 @@ public class FXMLLobbyController implements Initializable {
 
     @FXML
     private void clickReady(ActionEvent event) throws RemoteException, NotBoundException, MalformedURLException {
-
         gm = (IGameroomManager) Naming.lookup("game");
         gm.addPlayerToReady(User.gameroomName);
         btnReady.setDisable(true);
     }
 
     @FXML
-    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException {
+    private void clickStart(ActionEvent event) throws NotBoundException, MalformedURLException, RemoteException, IOException, InterruptedException {
         //Start game
+
+        /* ProcessBuilder pb = new ProcessBuilder("C:\\Program Files\\Java\\jdk1.8.0_65\\jre\\bin\\java.exe", "-jar", "ClientOneJar.jar");
+        pb.directory(new File("C:\\Users\\Gebruiker\\Desktop\\S3\\PTS\\S31T\\Game\\Pyromancer"));
+        Process p = pb.start();
+        int exitVal = p.exitValue();*/
+        Process proc = Runtime.getRuntime().exec("java -cp /home/dennis/PyromancerGam/FinalClient.jar Multiplayer.PyromancerClient 0 169.254.115.233 10007");
+
+        proc.waitFor();
+        int exitValue = proc.exitValue();
         closeGame();
     }
 
